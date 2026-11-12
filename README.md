@@ -35,7 +35,9 @@ The first milestone establishes a portable C++17 foundation:
 - Deterministic differential-drive plant simulator with motor lag, acceleration and traction parameters.
 - Planar force/yaw dynamics prototype with gravity, slope, banking, inertia and friction limits.
 - Curvature-aware motion planner with wheel-speed allocation, turn anticipation and forward/backward speed profiling.
-- Parametric straight/arc track builder and deterministic reflectance-array simulation.
+- Parametric track builder for straights, circular arcs, S-bends and hairpins, with fork/intersection/decoy branch geometry and configurable line gaps.
+- Deterministic reflectance-array simulation with seeded noise and sensor sample-dropout fault injection.
+- Closed-loop simulation fails safe on invalid sensor samples and reports sensor faults.
 - Closed-loop autonomous track runner integrating trajectory planning, reflectance perception, PID steering, motor limiting and the differential-drive plant.
 - Integration test and runnable straight-track simulation demo (host simulation only; not physical-robot validation).
 - Dependency-free unit tests for kinematics, perception, PID and actuator limiting, plus a small executable example.
