@@ -31,4 +31,10 @@ void test_autonomous_track_runner(){
  require(result.lost_line_steps==0,"line lost on simple straight track");
  require(result.completed,"robot did not complete straight track");
  require(result.final_pose.x_m>0.90,"robot did not reach track endpoint");
+ TrackRunnerConfig faulty=c;faulty.simulated_sensors.dropout_probability=0.99;faulty.simulated_sensors.random_seed=1234;
+ AutonomousTrackRunner fault_runner(faulty);
+ const auto fault_result=fault_runner.run(builder.build(),{0,0,0},0.005,1600);
+ require(fault_result.valid&&fault_result.faulted,"invalid sensor sample was not safely handled");
+ require(fault_result.sensor_fault_steps==1&&fault_result.steps==1,"sensor fault did not trigger immediate safe stop");
+ require(!fault_result.completed,"faulted run incorrectly reported completion");
 }
