@@ -1,0 +1,108 @@
+OBLIVION — PROPRIETARY AND CONFIDENTIAL
+CUSTOM ALL-RIGHTS-RESERVED LICENSE
+Version 1.0 — 12 November 2026
+
+Copyright © 2026 Durvesh Mukund Jadhav and DMJ Technologies.
+All rights reserved.
+
+IMPORTANT: THIS IS A CUSTOM PROPRIETARY NOTICE, NOT AN OPEN-SOURCE LICENSE.
+
+1. RIGHTS RESERVED
+All source code, object code, documentation, designs, specifications, algorithms,
+models, data, build scripts, tests, visual assets and other materials distributed
+with or as part of OBLIVION ("Materials") are proprietary and confidential to the
+extent owned or controlled by the stated rights holders. All rights not expressly
+granted in a separate written agreement signed by an authorized rights holder
+are reserved.
+
+2. NO GENERAL LICENSE
+Viewing, accessing, cloning, downloading, forking or possessing a copy of the
+Materials does not grant a license or other permission to use them. No rights are
+granted by implication, estoppel or otherwise, except rights that cannot lawfully
+be excluded. This repository is not offered under MIT, Apache-2.0, GPL, BSD,
+Creative Commons or any other open-source or public license.
+
+3. PROHIBITED ACTIVITIES WITHOUT PRIOR WRITTEN PERMISSION
+To the maximum extent permitted by applicable law, no person may, without a
+separate prior written license signed by an authorized rights holder:
+(a) use, execute, deploy, install, reproduce, copy, modify, adapt, translate,
+    merge or create derivative works from any Material;
+(b) distribute, publish, sublicense, rent, lease, sell, host, transmit, disclose
+    or otherwise make any Material available to another person;
+(c) use any Material in a product, service, competition, commercial activity,
+    educational deployment, production system or internal organizational system;
+(d) reverse engineer, decompile, disassemble or attempt to derive source, model
+    parameters, training data or underlying structure, except where prohibited
+    by applicable law;
+(e) remove or bypass copyright, confidentiality, attribution, security or
+    proprietary notices or technical restrictions;
+(f) use Materials, outputs, weights or derivatives to train, fine-tune, evaluate,
+    benchmark, distill or develop another model or competing system;
+(g) use the name OBLIVION, logos, marks or project identity in a way implying
+    endorsement, affiliation, sponsorship or authorization; or
+(h) redistribute modified or unmodified copies, including through package
+    registries, firmware images, repositories, mirrors, datasets or binaries.
+
+4. LIMITED REPOSITORY REVIEW
+If and only if access has been expressly granted by a rights holder, the recipient
+may inspect Materials within the authorized repository solely to evaluate a
+possible written collaboration or license. This does not authorize operational
+use, copying into another project, publication, redistribution, modification
+or deployment. Permission may be withdrawn subject to applicable law and any
+separate written agreement.
+
+5. CONTRIBUTIONS
+No contribution transfers ownership merely by submission. Before a contribution
+is merged or incorporated, the contributor must execute a written agreement,
+approved by the rights holders, granting the permissions necessary to use,
+modify, distribute, sublicense and maintain that contribution. Do not submit
+material you cannot lawfully license on those terms. Mandatory legal rights
+remain unaffected.
+
+6. THIRD-PARTY MATERIALS
+Third-party materials remain subject to their own licenses and terms. This
+notice does not claim ownership of third-party code, tools, libraries, standards,
+datasets or trademarks. Third-party obligations must be identified and met
+before inclusion.
+
+7. NO WARRANTY
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE MATERIALS ARE PROVIDED "AS IS"
+AND "AS AVAILABLE", WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EXPRESS,
+IMPLIED OR STATUTORY, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, TITLE, NON-INFRINGEMENT, ACCURACY, AVAILABILITY OR SAFETY. The
+Materials are not certified for safety-critical, medical, industrial,
+transportation or life-safety use.
+
+8. LIMITATION OF LIABILITY
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE RIGHTS HOLDERS AND
+CONTRIBUTORS SHALL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+PUNITIVE OR CONSEQUENTIAL LOSS, OR LOSS OF DATA, PROFITS, REVENUE, GOODWILL,
+PROPERTY OR BUSINESS, arising from or relating to the Materials or their use.
+Nothing excludes liability that applicable law does not permit to be excluded.
+
+9. NO TRADEMARK OR PATENT LICENSE
+No patent, trademark, trade name, logo or other intellectual-property license
+is granted by this notice. OBLIVION and associated marks may be protected or
+claimed separately by their respective owners.
+
+10. TERMINATION
+Any permission under a separate written agreement may be terminated under
+that agreement. Upon termination, the recipient must cease licensed activities
+and handle copies as the agreement and applicable law require.
+
+11. GOVERNING LAW
+This notice is interpreted subject to applicable law. No provision contracts
+out of mandatory consumer, privacy, intellectual-property or other non-waivable
+legal protections.
+
+12. PERMISSION REQUESTS
+Permission requests must be made in writing through a contact channel officially
+published by the rights holders. Do not infer a contact address from repository
+metadata.
+
+13. SEVERABILITY
+If any provision is unenforceable, it shall be limited only to the minimum
+extent necessary, and the remaining provisions shall continue to apply.
+This notice is not a substitute for a separately negotiated written license.
+
+END OF CUSTOM PROPRIETARY NOTICE
