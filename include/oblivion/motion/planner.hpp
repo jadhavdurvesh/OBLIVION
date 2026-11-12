@@ -5,6 +5,7 @@
 
 namespace oblivion {
 constexpr std::size_t kMaxTrajectoryPoints=512;
+struct MotionPoint2D { double x_m{0.0}; double y_m{0.0}; };
 
 struct MotionConstraints {
  double maximum_speed_mps{1.5};
