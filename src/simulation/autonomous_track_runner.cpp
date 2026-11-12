@@ -12,6 +12,8 @@ AutonomousTrackRunner::AutonomousTrackRunner(TrackRunnerConfig c)noexcept
 bool AutonomousTrackRunner::configuration_valid()const noexcept{
  return plant_.configuration_valid()&&sensor_simulator_.configuration_valid()&&
  perception_.configuration_valid()&&planner_.constraints_valid()&&motor_limiter_.configuration_valid()&&
+ config_.motion.maximum_wheel_speed_mps<=config_.plant.maximum_wheel_speed_mps&&
+ std::abs(config_.motion.wheel_track_m-config_.plant.track_width_m)<=1e-6&&
  std::isfinite(config_.sensor_forward_offset_m)&&config_.sensor_forward_offset_m>=0&&
  std::isfinite(config_.minimum_tracking_confidence)&&config_.minimum_tracking_confidence>=0&&
  config_.minimum_tracking_confidence<=1&&std::isfinite(config_.completion_radius_m)&&
@@ -49,7 +51,7 @@ TrackRunMetrics AutonomousTrackRunner::run(const Track&t,const Pose2D&initial,do
  std::array<double,kMaxReflectanceSensors> raw{};
  double squared_error=0.0,sum_error=0.0;
  const double maximum_time=std::min(config_.maximum_run_time_seconds,dt*static_cast<double>(max_steps));
- const double max_speed=std::min(config_.plant.maximum_wheel_speed_mps,config_.motion.maximum_wheel_speed_mps);
+ const double max_speed=config_.plant.maximum_wheel_speed_mps;
  if(max_speed<=0)return metrics;
  for(std::size_t step=0;step<max_steps&&metrics.simulated_time_seconds<maximum_time;++step){
   const Pose2D pose=plant_.pose();
@@ -82,13 +84,14 @@ TrackRunMetrics AutonomousTrackRunner::run(const Track&t,const Pose2D&initial,do
    const double dx=p.x_m-pose.x_m,dy=p.y_m-pose.y_m,d2=dx*dx+dy*dy;
    if(d2<nearest_d2){nearest_d2=d2;nearest=i;}
   }
-  const double target_speed=metrics.planned_motion.points[nearest].speed_mps;
-  const double base=std::clamp(target_speed/max_speed,0.0,1.0);
+  const auto& target=metrics.planned_motion.points[nearest];
+  const double base_left=target.left_wheel_speed_mps/max_speed;
+  const double base_right=target.right_wheel_speed_mps/max_speed;
   const auto control=steering_.update({error,0.0,dt});
   if(!control.valid)return metrics;
   // Positive sensor error means the line is left of the robot: slow left,
   // speed right to create positive (left) yaw.
-  const MotorCommand requested{base-control.command,base+control.command};
+  const MotorCommand requested{base_left-control.command,base_right+control.command};
   const MotorCommand safe=motor_limiter_.apply(requested);
   if(!plant_.step(safe,dt))return metrics;
   metrics.simulated_time_seconds+=dt;metrics.steps=step+1;
