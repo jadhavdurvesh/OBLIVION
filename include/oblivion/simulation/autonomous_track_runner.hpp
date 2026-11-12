@@ -42,6 +42,7 @@ struct TrackRunMetrics {
 class AutonomousTrackRunner {
 public:
  explicit AutonomousTrackRunner(TrackRunnerConfig config) noexcept;
+ AutonomousTrackRunner(TrackRunnerConfig config,IController& steering_controller) noexcept;
  [[nodiscard]] bool configuration_valid()const noexcept;
  [[nodiscard]] TrackRunMetrics run(const Track& track,const Pose2D& initial_pose,
                                     double dt_seconds,std::size_t maximum_steps) noexcept;
@@ -53,5 +54,6 @@ private:
  MotionPlanner planner_;
  PidController steering_;
  MotorLimiter motor_limiter_;
+ IController* active_controller_{nullptr};
 };
 } // namespace oblivion
