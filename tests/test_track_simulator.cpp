@@ -14,6 +14,11 @@ void test_track_simulator(){
  require(sensors.sample(t,{0,0,0},1000,values,5),"sensor sampling failed");
  require(values[2]<0.1&&values[0]>0.9&&values[4]>0.9,"sensor readings incorrect");
  require(!sensors.sample(t,{0,0,0},1000,values,4),"undersized output accepted");
+ TrackBuilder capacity(0.01);
+ require(!capacity.add_arc({0,0},0.5,0,1.57079632679,512),"oversized empty arc was accepted");
+ require(capacity.build().point_count==0,"failed arc partially mutated builder");
+ require(capacity.add_arc({0,0},0.5,0,1.57079632679,511),"maximum-capacity arc was rejected");
+ require(capacity.build().point_count==512,"maximum-capacity arc point count wrong");
  TrackBuilder arc(0.01);require(arc.add_arc({0,0},0.5,0,1.57079632679,16),"arc generation failed");require(arc.build().valid(),"arc track invalid");
  TrackBuilder sbend(0.012);require(sbend.add_s_bend({0,0},0.8,0.12,40),"S-bend generation failed");
  require(sbend.build().valid(),"S-bend track invalid");
