@@ -10,6 +10,10 @@ void test_motion_planner(){
  const double k=planner.curvature({0,0},{1,0},{1,1});
  require(k>0.0,"left turn curvature sign incorrect");
  const double v=planner.maximum_corner_speed(k);
+ const double left_banked=planner.maximum_corner_speed(k,0.0,0.1);
+ const double adverse_bank=planner.maximum_corner_speed(-k,0.0,0.1);
+ require(left_banked>v,"inside banking did not assist left turn");
+ require(adverse_bank<left_banked,"inside banking was not turn-direction aware");
  require(v>0.0&&v<2.0,"corner speed not constrained");
  const auto wheels=planner.wheel_speeds(1.0,k);
  require(wheels.left_mps<wheels.right_mps,"left turn did not slow inner wheel");
