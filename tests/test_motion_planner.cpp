@@ -15,7 +15,7 @@ void test_motion_planner(){
  require(wheels.left_mps<wheels.right_mps,"left turn did not slow inner wheel");
  const double braking=planner.turn_anticipation_distance(1.0,2.0);
  require(braking>0.25&&braking<0.4,"turn anticipation distance incorrect");
- PathSample path[5]{{{0,0},0},{{0.5,0},0},{{1,0},0},{{1,0.5},0},{{1,1},0}};
+ PathSample path[5]{{{0,0},0,0},{{0.5,0},0,0},{{1,0},0,0},{{1,0.5},0,0},{{1,1},0,0}};
  const auto plan=planner.plan(path,5,0.0);
  require(plan.valid&&plan.count==5,"trajectory planning failed");
  require(plan.points.back().speed_mps==0.0,"terminal stop constraint not applied");
