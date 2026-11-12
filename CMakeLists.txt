@@ -9,6 +9,7 @@ add_library(oblivion_core
     src/perception/reflectance_processor.cpp
     src/control/pid_controller.cpp
     src/control/advanced_controllers.cpp
+    src/control/h_infinity_controller.cpp
     src/safety/motor_limiter.cpp
 )
 target_include_directories(oblivion_core PUBLIC include)
@@ -34,6 +35,7 @@ if(OBLIVION_BUILD_TESTS)
         tests/test_perception.cpp
         tests/test_pid.cpp
         tests/test_advanced_controllers.cpp
+        tests/test_hinfinity.cpp
         tests/test_safety.cpp
     )
     target_link_libraries(oblivion_tests PRIVATE oblivion_core)
