@@ -1,4 +1,5 @@
 #include "oblivion/simulation/rigid_body_3d.hpp"
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <iomanip>
