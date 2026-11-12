@@ -91,6 +91,20 @@ struct GainSchedulePoint { double absolute_error{0.0}; double position_gain{1.0}
 template <std::size_t N>
 struct GainSchedule { std::array<GainSchedulePoint, N> points{}; OutputLimits limits{}; };
 
+
+struct GainScheduleConfig {
+    std::array<GainSchedulePoint, 16> points{};
+    std::size_t point_count{0};
+    OutputLimits limits{};
+};
+class GainScheduledController final : public IController {
+public:
+    explicit GainScheduledController(GainScheduleConfig config) noexcept;
+    ControlOutput update(const ControlInput&) noexcept override;
+    void reset() noexcept override;
+private: GainScheduleConfig config_;
+};
+
 class FuzzyController final : public IController {
 public:
     FuzzyController(double error_scale, double rate_scale, OutputLimits limits) noexcept;
