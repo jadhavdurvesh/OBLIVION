@@ -143,6 +143,11 @@ documented plant model before supervisor selection.
 - [~] Repeatable controller comparison executable with deterministic track geometry and seedable sensor model; persisted reports, broader controller coverage and statistical experiments remain.
 - [ ] Property-based and fuzz testing of parsers, configuration and math boundaries.
 - [ ] Hardware-in-the-loop interface and trace replay.
+- [~] Initial 6-DOF rigid-body plant with quaternion attitude, wheel rotational state, motor torque response, four-corner suspension/contact approximation, tire slip/friction saturation, gravity and drag.
+- [~] Native JSON trace exporter and interactive Three.js trace viewer with camera controls, scenario geometry, telemetry and trajectory playback.
+- [ ] Detailed collision geometry, robust contact solver, calibrated suspension/tire models, motor electrical dynamics and deformable terrain.
+- [ ] Ray-cast reflectance/IMU/encoder simulation and closed-loop OBLIVION Sprint control inside the 3D plant.
+- [ ] 3D track editor, terrain mesh authoring, obstacles and collision scenarios.
 - [ ] Digital-twin versus physical-run model calibration.
 
 ## M9 — Embedded runtime and hardware abstraction
