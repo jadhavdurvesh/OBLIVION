@@ -1,5 +1,6 @@
 #include "oblivion/simulation/autonomous_track_runner.hpp"
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 
@@ -55,7 +56,6 @@ TrackRunMetrics AutonomousTrackRunner::run(const Track&t,const Pose2D&initial,do
   const double forward_x=std::cos(pose.heading_rad)*config_.sensor_forward_offset_m;
   const double forward_y=std::sin(pose.heading_rad)*config_.sensor_forward_offset_m;
   const Pose2D sensor_pose{pose.x_m+forward_x,pose.y_m+forward_y,pose.heading_rad};
-  const auto sensor_config=config_.simulated_sensors;
   if(!sensor_simulator_.sample(t,sensor_pose,static_cast<std::uint64_t>(metrics.simulated_time_seconds*1e6),
                                raw.data(),raw.size()))return metrics;
   const auto observation=perception_.process(raw.data(),config_.perception.sensor_count,
@@ -93,14 +93,15 @@ TrackRunMetrics AutonomousTrackRunner::run(const Track&t,const Pose2D&initial,do
   if(!plant_.step(safe,dt))return metrics;
   metrics.simulated_time_seconds+=dt;metrics.steps=step+1;
   const auto after=plant_.pose();
-  const double remaining=std::hypot(t.centerline[count-1].x_m-after.x_m,
-                                    t.centerline[count-1].y_m-after.y_m);
+  const double remaining=std::hypot(t.centerline[t.point_count-1].x_m-after.x_m,
+                                    t.centerline[t.point_count-1].y_m-after.y_m);
   if(remaining<=config_.completion_radius_m){metrics.completed=true;break;}
  }
  metrics.final_pose=plant_.pose();
  metrics.timed_out=!metrics.completed&&metrics.simulated_time_seconds>=maximum_time;
- metrics.mean_cross_track_error_m=metrics.steps?sum_error/static_cast<double>(metrics.steps-metrics.lost_line_steps):0.0;
- metrics.rms_cross_track_error_m=metrics.steps?std::sqrt(squared_error/static_cast<double>(metrics.steps-metrics.lost_line_steps)):0.0;
+ const std::size_t observed_steps=metrics.steps-metrics.lost_line_steps;
+ metrics.mean_cross_track_error_m=observed_steps?sum_error/static_cast<double>(observed_steps):0.0;
+ metrics.rms_cross_track_error_m=observed_steps?std::sqrt(squared_error/static_cast<double>(observed_steps)):0.0;
  metrics.estimated_time_seconds=metrics.planned_motion.estimated_time_seconds;
  metrics.valid=metrics.steps>0&&std::isfinite(metrics.final_pose.x_m)&&
                std::isfinite(metrics.rms_cross_track_error_m);
