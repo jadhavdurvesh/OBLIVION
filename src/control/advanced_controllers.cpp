@@ -35,7 +35,8 @@ ControlOutput MpcController::update(const ControlInput& i) noexcept {
        !std::isfinite(c.slew_weight)||c.position_weight<0||c.rate_weight<0||
        c.effort_weight<=0||c.horizon_seconds<=0||c.maximum_acceleration<=0||
        c.maximum_rate<=0||c.slew_weight<0||c.candidate_count<3||c.candidate_count>11||
-       c.prediction_steps<3||c.prediction_steps>60||!valid_limits(c.limits))return {0,false};
+       c.prediction_steps<3||c.prediction_steps>60||!valid_limits(c.limits)||
+       c.limits.minimum>0.0||c.limits.maximum<0.0)return {0,false};
     const double control_min=std::max(-c.maximum_acceleration,c.limits.minimum);
     const double control_max=std::min(c.maximum_acceleration,c.limits.maximum);
     if(control_min>control_max)return {0,false};
