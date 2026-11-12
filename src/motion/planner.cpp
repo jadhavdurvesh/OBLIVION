@@ -18,7 +18,7 @@ bool MotionPlanner::constraints_valid()const noexcept{
  c.maximum_yaw_rate_radps>0&&c.wheel_track_m>0&&c.gravity_mps2>0&&
  c.planning_latency_seconds>=0&&c.safety_margin_m>=0;
 }
-double MotionPlanner::curvature(Point2D a,Point2D b,Point2D c)const noexcept{
+double MotionPlanner::curvature(MotionPoint2D a,MotionPoint2D b,MotionPoint2D c)const noexcept{
  const double ab=std::hypot(b.x_m-a.x_m,b.y_m-a.y_m);
  const double bc=std::hypot(c.x_m-b.x_m,c.y_m-b.y_m);
  const double ca=std::hypot(a.x_m-c.x_m,a.y_m-c.y_m);
@@ -27,12 +27,12 @@ double MotionPlanner::curvature(Point2D a,Point2D b,Point2D c)const noexcept{
  const double cross=(b.x_m-a.x_m)*(c.y_m-a.y_m)-(b.y_m-a.y_m)*(c.x_m-a.x_m);
  return 2.0*cross/denominator;
 }
-double MotionPlanner::maximum_corner_speed(double k,double grade)const noexcept{
- if(!constraints_valid()||!std::isfinite(k)||!std::isfinite(grade))return 0.0;
+double MotionPlanner::maximum_corner_speed(double k,double grade,double bank)const noexcept{
+ if(!constraints_valid()||!std::isfinite(k)||!std::isfinite(grade)||!std::isfinite(bank))return 0.0;
  const double abs_k=std::abs(k);
  if(abs_k<kEpsilon)return constraints_.maximum_speed_mps;
  const double effective_lateral=std::max(0.0,constraints_.maximum_lateral_acceleration_mps2+
-      constraints_.gravity_mps2*std::sin(grade)*0.0);
+      constraints_.gravity_mps2*std::sin(bank)*std::cos(grade));
  const double lateral=std::sqrt(effective_lateral/abs_k);
  const double yaw=constraints_.maximum_yaw_rate_radps/abs_k;
  const double wheel=constraints_.maximum_wheel_speed_mps/
@@ -57,11 +57,11 @@ MotionPlan MotionPlanner::plan(const PathSample* path,std::size_t count,double t
  std::array<double,kMaxTrajectoryPoints> ds{},curv{},speed{};
  for(std::size_t i=0;i<count;++i){
   const auto&p=path[i];
-  if(!std::isfinite(p.position.x_m)||!std::isfinite(p.position.y_m)||!std::isfinite(p.grade_rad))return result;
+  if(!std::isfinite(p.position.x_m)||!std::isfinite(p.position.y_m)||!std::isfinite(p.grade_rad)||!std::isfinite(p.bank_rad))return result;
   if(i>0){ds[i]=std::hypot(p.position.x_m-path[i-1].position.x_m,p.position.y_m-path[i-1].position.y_m);
    if(ds[i]<kEpsilon)return result;}
   if(i>0&&i+1<count)curv[i]=curvature(path[i-1].position,p.position,path[i+1].position);
-  const double local=maximum_corner_speed(curv[i],p.grade_rad);
+  const double local=maximum_corner_speed(curv[i],p.grade_rad,p.bank_rad);
   if(!std::isfinite(local)||local<=0)return result;
   speed[i]=local;
  }
