@@ -11,6 +11,7 @@ add_library(oblivion_core
     src/control/advanced_controllers.cpp
     src/control/h_infinity_controller.cpp
     src/safety/motor_limiter.cpp
+    src/simulation/rigid_body_3d.cpp
     src/simulation/differential_drive_plant.cpp
     src/simulation/track_simulator.cpp
     src/simulation/autonomous_track_runner.cpp
@@ -45,6 +46,7 @@ if(OBLIVION_BUILD_TESTS)
         tests/test_pid.cpp
         tests/test_advanced_controllers.cpp
         tests/test_hinfinity.cpp
+        tests/test_rigid_body_3d.cpp
         tests/test_simulation.cpp
         tests/test_track_simulator.cpp
         tests/test_autonomous_track_runner.cpp
