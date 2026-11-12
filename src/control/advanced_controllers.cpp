@@ -104,6 +104,36 @@ void AdaptivePdController::reset() noexcept {kp_=config_.initial_position_gain;k
 double AdaptivePdController::position_gain()const noexcept{return kp_;}
 double AdaptivePdController::rate_gain()const noexcept{return kd_;}
 
+
+GainScheduledController::GainScheduledController(GainScheduleConfig c) noexcept:config_(c){}
+ControlOutput GainScheduledController::update(const ControlInput& i) noexcept {
+    if(!valid_input(i)||config_.point_count==0||config_.point_count>config_.points.size()||!valid_limits(config_.limits))return {0,false};
+    for(std::size_t n=0;n<config_.point_count;++n){
+        const auto& p=config_.points[n];
+        if(!std::isfinite(p.absolute_error)||!std::isfinite(p.position_gain)||!std::isfinite(p.rate_gain)||
+           p.absolute_error<0||p.position_gain<0||p.rate_gain<0||
+           (n>0&&p.absolute_error<=config_.points[n-1].absolute_error))return {0,false};
+    }
+    const double magnitude=std::abs(i.error);
+    const auto& first=config_.points[0];
+    const auto& last=config_.points[config_.point_count-1];
+    double kp=first.position_gain,kd=first.rate_gain;
+    if(magnitude>=last.absolute_error){kp=last.position_gain;kd=last.rate_gain;}
+    else if(magnitude>first.absolute_error){
+        for(std::size_t n=1;n<config_.point_count;++n){
+            const auto& a=config_.points[n-1];const auto& b=config_.points[n];
+            if(magnitude<=b.absolute_error){
+                const double t=(magnitude-a.absolute_error)/(b.absolute_error-a.absolute_error);
+                kp=a.position_gain+t*(b.position_gain-a.position_gain);
+                kd=a.rate_gain+t*(b.rate_gain-a.rate_gain);
+                break;
+            }
+        }
+    }
+    return bounded(-(kp*i.error+kd*i.measured_rate),config_.limits);
+}
+void GainScheduledController::reset() noexcept {}
+
 FuzzyController::FuzzyController(double es,double rs,OutputLimits l) noexcept:error_scale_(es),rate_scale_(rs),limits_(l){}
 ControlOutput FuzzyController::update(const ControlInput& i) noexcept {
     if(!valid_input(i)||!std::isfinite(error_scale_)||!std::isfinite(rate_scale_)||error_scale_<=0||rate_scale_<=0)return {0,false};
