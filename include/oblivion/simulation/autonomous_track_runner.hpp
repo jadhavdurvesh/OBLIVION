@@ -31,9 +31,11 @@ struct TrackRunMetrics {
  double simulated_time_seconds{0.0};
  std::size_t steps{0};
  std::size_t lost_line_steps{0};
+ std::size_t sensor_fault_steps{0};
  std::size_t low_confidence_steps{0};
  bool completed{false};
  bool timed_out{false};
+ bool faulted{false};
  bool valid{false};
  MotionPlan planned_motion{};
 };
