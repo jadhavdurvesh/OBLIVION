@@ -31,23 +31,51 @@ ControlOutput MpcController::update(const ControlInput& i) noexcept {
     const auto& c=config_;
     if(!valid_input(i)||!std::isfinite(c.position_weight)||!std::isfinite(c.rate_weight)||
        !std::isfinite(c.effort_weight)||!std::isfinite(c.horizon_seconds)||
-       !std::isfinite(c.maximum_acceleration)||c.position_weight<0||c.rate_weight<0||
+       !std::isfinite(c.maximum_acceleration)||!std::isfinite(c.maximum_rate)||
+       !std::isfinite(c.slew_weight)||c.position_weight<0||c.rate_weight<0||
        c.effort_weight<=0||c.horizon_seconds<=0||c.maximum_acceleration<=0||
-       c.candidate_count<3||c.candidate_count>101||!valid_limits(c.limits))return {0,false};
-    double best_u=0.0,best_cost=std::numeric_limits<double>::infinity();
-    const double step=c.horizon_seconds/static_cast<double>(c.candidate_count);
-    for(unsigned n=0;n<c.candidate_count;++n){
-        const double fraction=(2.0*static_cast<double>(n)/static_cast<double>(c.candidate_count-1))-1.0;
-        const double u=fraction*c.maximum_acceleration;
-        double e=i.error,rate=i.measured_rate,cost=0.0;
-        for(unsigned k=0;k<c.candidate_count;++k){
-            e+=rate*step+0.5*u*step*step;
-            rate+=u*step;
-            cost+=c.position_weight*e*e+c.rate_weight*rate*rate+c.effort_weight*u*u*step;
+       c.maximum_rate<=0||c.slew_weight<0||c.candidate_count<3||c.candidate_count>11||
+       c.prediction_steps<3||c.prediction_steps>60||!valid_limits(c.limits))return {0,false};
+
+    constexpr std::size_t segments=3;
+    std::array<double,segments> controls{{0.0,0.0,0.0}};
+    const double dt=c.horizon_seconds/static_cast<double>(c.prediction_steps);
+    const unsigned segment_length=(c.prediction_steps+2U)/3U;
+    const auto evaluate=[&](const std::array<double,segments>& sequence) noexcept {
+        double error=i.error,rate=i.measured_rate,cost=0.0,previous=0.0;
+        for(unsigned step=0;step<c.prediction_steps;++step){
+            const std::size_t segment=std::min<std::size_t>(step/segment_length,segments-1);
+            const double u=sequence[segment];
+            if(std::abs(u)>c.maximum_acceleration || std::abs(rate)>c.maximum_rate) return std::numeric_limits<double>::infinity();
+            error+=rate*dt+0.5*u*dt*dt;
+            rate+=u*dt;
+            const double slew=u-previous;
+            cost+=(c.position_weight*error*error+c.rate_weight*rate*rate+
+                   c.effort_weight*u*u+c.slew_weight*slew*slew)*dt;
+            previous=u;
         }
-        if(cost<best_cost){best_cost=cost;best_u=u;}
+        cost+=c.position_weight*error*error+c.rate_weight*rate*rate;
+        return std::isfinite(cost)?cost:std::numeric_limits<double>::infinity();
+    };
+
+    double best_cost=evaluate(controls);
+    for(unsigned pass=0;pass<3;++pass){
+        for(std::size_t segment=0;segment<segments;++segment){
+            double selected=controls[segment];
+            for(unsigned candidate=0;candidate<c.candidate_count;++candidate){
+                const double fraction=(2.0*static_cast<double>(candidate)/
+                    static_cast<double>(c.candidate_count-1U))-1.0;
+                const double trial=fraction*c.maximum_acceleration;
+                auto proposed=controls;
+                proposed[segment]=trial;
+                const double cost=evaluate(proposed);
+                if(cost<best_cost){best_cost=cost;selected=trial;}
+            }
+            controls[segment]=selected;
+        }
     }
-    return bounded(best_u,c.limits);
+    if(!std::isfinite(best_cost))return {0.0,false};
+    return bounded(controls[0],c.limits);
 }
 void MpcController::reset() noexcept {}
 
