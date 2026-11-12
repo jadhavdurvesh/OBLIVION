@@ -83,8 +83,13 @@ RigidBody3DOutput RigidBody3DSimulator::step(const RigidBody3DInput&in,double dt
   }
  }
  out.left_normal_load_n=normal_left;out.right_normal_load_n=normal_right;
- const double motor_tau_left=in.motors.left*config_.maximum_motor_torque_nm*in.battery_voltage_ratio;
- const double motor_tau_right=in.motors.right*config_.maximum_motor_torque_nm*in.battery_voltage_ratio;
+ const double target_tau_left=in.motors.left*config_.maximum_motor_torque_nm*in.battery_voltage_ratio;
+ const double target_tau_right=in.motors.right*config_.maximum_motor_torque_nm*in.battery_voltage_ratio;
+ const double motor_alpha=config_.motor_time_constant_s==0.0?1.0:dt/(config_.motor_time_constant_s+dt);
+ state_.left_motor_torque_nm+=(target_tau_left-state_.left_motor_torque_nm)*motor_alpha;
+ state_.right_motor_torque_nm+=(target_tau_right-state_.right_motor_torque_nm)*motor_alpha;
+ const double motor_tau_left=state_.left_motor_torque_nm;
+ const double motor_tau_right=state_.right_motor_torque_nm;
  const Vector3 forward=rotate(q,{1,0,0}),side=rotate(q,{0,1,0});
  const auto wheel_force=[&](double omega,double motor_tau,double normal,Vector3 rbody,double& tire_force,double& wheel_accel){
   const Vector3 rw=rotate(q,rbody);
@@ -121,9 +126,7 @@ RigidBody3DOutput RigidBody3DSimulator::step(const RigidBody3DInput&in,double dt
  const Vector3 alpha{torque.x/config_.inertia_kg_m2.x,torque.y/config_.inertia_kg_m2.y,torque.z/config_.inertia_kg_m2.z};
  next.angular_velocity_body_radps=add(state_.angular_velocity_body_radps,mul(alpha,dt));
  next.pose.orientation=integrate(q,next.angular_velocity_body_radps,dt);
- const double motor_alpha=config_.motor_time_constant_s==0?1.0:dt/(config_.motor_time_constant_s+dt);
  next.left_wheel_radps+=left_acc*dt;next.right_wheel_radps+=right_acc*dt;
- next.left_wheel_radps+=(motor_tau_left/config_.maximum_motor_torque_nm*40.0-next.left_wheel_radps)*motor_alpha*0.0;
  next.time_s+=dt;
  if(!finite(next.pose.position_m)||!finite(next.linear_velocity_world_mps)||!finite(next.angular_velocity_body_radps))return out;
  state_=next;out.state=state_;out.valid=true;return out;
