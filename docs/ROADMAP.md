@@ -129,12 +129,15 @@ documented plant model before supervisor selection.
 - [ ] Explore mode recovery, replanning and resource limits.
 
 ## M8 — Simulation, digital twin and verification
-- [x] Deterministic differential-drive plant with motor lag, acceleration and traction factor.\n- [x] Deterministic synthetic reflectance-array sampling against track geometry.\n- [x] Closed-loop host simulation runner connecting track, sensors, perception, planned wheel-speed feedforward, PID correction, motor limiter and plant.\n- [~] Straight-track end-to-end integration test and runnable demo; curved-track, noise, gap, disturbance and Monte Carlo validation remain.
+- [x] Deterministic differential-drive plant with motor lag, acceleration and traction factor.
+- [x] Deterministic synthetic reflectance-array sampling against track geometry.
+- [x] Closed-loop host simulation runner connecting track, sensors, perception, planned wheel-speed feedforward, PID correction, motor limiter and plant.
+- [~] Straight-track end-to-end integration test and runnable demo; curved-track, noise, gap, disturbance and Monte Carlo validation remain.
 - [ ] Motor lag, acceleration, braking, saturation and wheel-slip models.
-- [ ] Sensor geometry, noise, drift, missing samples and failure injection.
-- [ ] Parametric track generator: straights, curves, S-bends, junctions, gaps,
-      intersections, loops and dead ends.
+- [~] Sensor geometry, deterministic noise and random sample dropout are implemented; drift, stuck-at, correlated failures and broader fault injection remain.
+- [~] Parametric track generator: straights, circular arcs, S-bends, hairpins, branches and line gaps; intersection topology, loops and dead-end scenarios remain.
 - [ ] Sprint and Explore benchmark suites.
+- [~] Complex track geometry and sensor-dropout integration tests; curved-track closed-loop performance, disturbances and Monte Carlo robustness remain.
 - [ ] Monte Carlo robustness and sensitivity tests.
 - [ ] Controller comparison reports and reproducible experiment seeds.
 - [ ] Property-based and fuzz testing of parsers, configuration and math boundaries.
@@ -177,7 +180,10 @@ documented plant model before supervisor selection.
 
  
 ## M12 — Software-only mathematical motion intelligence
-- [x] Signed path curvature from three-point geometry.\n- [x] Closed-loop straight-track simulation from generated track to robot motion and tracking metrics.\n- [x] Planner-derived left/right wheel-speed feedforward with bounded line-position correction.\n- [x] Sparse path resampling before speed-profile generation.
+- [x] Signed path curvature from three-point geometry.
+- [x] Closed-loop straight-track simulation from generated track to robot motion and tracking metrics.
+- [x] Planner-derived left/right wheel-speed feedforward with bounded line-position correction.
+- [x] Sparse path resampling before speed-profile generation.
 - [x] Differential wheel-speed allocation from linear speed and curvature.
 - [x] Turn anticipation using latency, braking distance and safety margin.
 - [x] Curvature, yaw-rate and outer-wheel-speed corner velocity limits.
