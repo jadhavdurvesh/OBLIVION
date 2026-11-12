@@ -135,11 +135,12 @@ documented plant model before supervisor selection.
 - [~] Straight-track end-to-end integration test and runnable demo; curved-track, noise, gap, disturbance and Monte Carlo validation remain.
 - [ ] Motor lag, acceleration, braking, saturation and wheel-slip models.
 - [~] Sensor geometry, deterministic noise and random sample dropout are implemented; drift, stuck-at, correlated failures and broader fault injection remain.
-- [~] Parametric track generator: straights, circular arcs, S-bends, hairpins, branches and line gaps; intersection topology, loops and dead-end scenarios remain.
+- [~] Parametric track generator: straights, circular arcs, S-bends, hairpins, branches and exact line-gap boundaries; intersection topology, loops and dead-end scenarios remain.
 - [ ] Sprint and Explore benchmark suites.
-- [~] Complex track geometry and sensor-dropout integration tests; curved-track closed-loop performance, disturbances and Monte Carlo robustness remain.
+- [x] Complex track geometry, exact gap-boundary and sensor-dropout safe-stop integration tests.
+- [~] Controller-injection benchmark harness for PID, LQR, SMC and MPC on an identical S-bend; validated performance results, curved-track closed-loop success, disturbances and Monte Carlo robustness remain.
 - [ ] Monte Carlo robustness and sensitivity tests.
-- [ ] Controller comparison reports and reproducible experiment seeds.
+- [~] Repeatable controller comparison executable with deterministic track geometry and seedable sensor model; persisted reports, broader controller coverage and statistical experiments remain.
 - [ ] Property-based and fuzz testing of parsers, configuration and math boundaries.
 - [ ] Hardware-in-the-loop interface and trace replay.
 - [ ] Digital-twin versus physical-run model calibration.
