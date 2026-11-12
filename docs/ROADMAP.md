@@ -97,10 +97,10 @@ documented plant model before supervisor selection.
 ## M5 — Motion and trajectory intelligence
 - [ ] Robot/motor dynamic model, actuator dead zone and response delay.
 - [ ] Motor identification from measured step/ramp experiments.
-- [ ] Wheel-speed, torque/current, voltage and thermal constraints.
-- [ ] Curvature-aware speed profile and lateral-acceleration limits.
+- [~] Differential wheel-speed and outer-wheel-speed constraints (torque/current/voltage/thermal constraints remain).
+- [x] Curvature-aware speed profile and lateral-acceleration limits (host planner prototype).
 - [ ] Acceleration, deceleration and jerk-limited trajectory generation.
-- [ ] Braking-distance and emergency-stop planner based on measured stopping data.
+- [~] Braking-distance and turn-anticipation estimates (measured stopping data and emergency-stop validation remain).
 - [ ] Wheel slip, traction and surface-change estimation.
 - [ ] Battery-aware power and speed management.
 - [ ] Time-optimal/energy-aware trajectory optimization with bounded compute.
@@ -129,7 +129,7 @@ documented plant model before supervisor selection.
 - [ ] Explore mode recovery, replanning and resource limits.
 
 ## M8 — Simulation, digital twin and verification
-- [x] Deterministic differential-drive plant with motor lag, acceleration and traction factor.
+- [x] Deterministic differential-drive plant with motor lag, acceleration and traction factor.\n- [x] Deterministic synthetic reflectance-array sampling against track geometry.\n- [x] Closed-loop host simulation runner connecting track, sensors, perception, planned wheel-speed feedforward, PID correction, motor limiter and plant.\n- [~] Straight-track end-to-end integration test and runnable demo; curved-track, noise, gap, disturbance and Monte Carlo validation remain.
 - [ ] Motor lag, acceleration, braking, saturation and wheel-slip models.
 - [ ] Sensor geometry, noise, drift, missing samples and failure injection.
 - [ ] Parametric track generator: straights, curves, S-bends, junctions, gaps,
@@ -177,7 +177,7 @@ documented plant model before supervisor selection.
 
  
 ## M12 — Software-only mathematical motion intelligence
-- [x] Signed path curvature from three-point geometry.
+- [x] Signed path curvature from three-point geometry.\n- [x] Closed-loop straight-track simulation from generated track to robot motion and tracking metrics.\n- [x] Planner-derived left/right wheel-speed feedforward with bounded line-position correction.\n- [x] Sparse path resampling before speed-profile generation.
 - [x] Differential wheel-speed allocation from linear speed and curvature.
 - [x] Turn anticipation using latency, braking distance and safety margin.
 - [x] Curvature, yaw-rate and outer-wheel-speed corner velocity limits.
