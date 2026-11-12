@@ -1,4 +1,5 @@
 #include "oblivion/simulation/autonomous_track_runner.hpp"
+#include "oblivion/control/advanced_controllers.hpp"
 #include <cmath>
 #include <stdexcept>
 namespace {void require(bool c,const char*m){if(!c)throw std::runtime_error(m);}}
@@ -37,4 +38,8 @@ void test_autonomous_track_runner(){
  require(fault_result.valid&&fault_result.faulted,"invalid sensor sample was not safely handled");
  require(fault_result.sensor_fault_steps==1&&fault_result.steps==1,"sensor fault did not trigger immediate safe stop");
  require(!fault_result.completed,"faulted run incorrectly reported completion");
+ LqrController alternate({8.0,0.5},{-0.5,0.5});
+ AutonomousTrackRunner alternate_runner(c,alternate);
+ const auto alternate_result=alternate_runner.run(builder.build(),{0,0,0},0.005,1600);
+ require(alternate_result.valid&&alternate_result.completed,"injected LQR controller did not execute on identical track");
 }
