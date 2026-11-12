@@ -25,10 +25,11 @@ The project is designed to grow into a reusable robotics platform. It is not a d
 The first milestone establishes a portable C++17 foundation:
 
 - Differential-drive kinematic model.
+- Calibrated reflectance perception with weighted line-position, width and confidence estimates.
 - Shared robot, sensor and actuator data types.
 - Controller interface and a baseline PID implementation.
 - Motor-command safety limiting.
-- Dependency-free unit tests and a small executable example.
+- Dependency-free unit tests for kinematics, perception, PID and actuator limiting, plus a small executable example.
 
 This foundation is not yet a competition-ready robot. Hardware drivers, calibrated dynamics, localization, perception, mapping, advanced controllers and physical validation are subsequent milestones.
 
