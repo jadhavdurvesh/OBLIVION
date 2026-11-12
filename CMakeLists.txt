@@ -60,5 +60,7 @@ if(OBLIVION_BUILD_TESTS)
     add_test(NAME oblivion_tests COMMAND oblivion_tests)
     if(OBLIVION_BUILD_EXAMPLES)
         add_test(NAME oblivion_controller_benchmark COMMAND oblivion_controller_benchmark)
+        add_test(NAME oblivion_3d_trace_export
+                 COMMAND oblivion_3d_trace ${CMAKE_CURRENT_BINARY_DIR}/oblivion_3d_trace.json)
     endif()
 endif()
