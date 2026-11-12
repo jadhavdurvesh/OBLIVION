@@ -64,7 +64,15 @@ TrackRunMetrics AutonomousTrackRunner::run(const Track&t,const Pose2D&initial,do
                                raw.data(),raw.size()))return metrics;
   const auto observation=perception_.process(raw.data(),config_.perception.sensor_count,
                   static_cast<std::uint64_t>(metrics.simulated_time_seconds*1e6));
-  if(!observation.input_valid)return metrics;
+  if(!observation.input_valid){
+   ++metrics.sensor_fault_steps;
+   metrics.faulted=true;
+   const MotorCommand stop=motor_limiter_.apply({0.0,0.0});
+   if(!plant_.step(stop,dt))return metrics;
+   metrics.simulated_time_seconds+=dt;
+   metrics.steps=step+1;
+   break;
+  }
   if(!observation.detected){
    ++metrics.lost_line_steps;
    // Fail closed: no line means no further acceleration.
