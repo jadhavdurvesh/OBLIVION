@@ -19,11 +19,12 @@ struct MotionConstraints {
  double safety_margin_m{0.01};
 };
 struct PathSample {
- Point2D position{};
+ MotionPoint2D position{};
  double grade_rad{0.0};
+ double bank_rad{0.0};
 };
 struct PlannedMotionPoint {
- Point2D position{};
+ MotionPoint2D position{};
  double curvature_per_m{0.0};
  double speed_mps{0.0};
  double left_wheel_speed_mps{0.0};
@@ -41,8 +42,8 @@ class MotionPlanner {
 public:
  explicit MotionPlanner(MotionConstraints constraints) noexcept;
  [[nodiscard]] bool constraints_valid()const noexcept;
- [[nodiscard]] double curvature(Point2D a,Point2D b,Point2D c)const noexcept;
- [[nodiscard]] double maximum_corner_speed(double curvature_per_m,double grade_rad=0.0)const noexcept;
+ [[nodiscard]] double curvature(MotionPoint2D a,MotionPoint2D b,MotionPoint2D c)const noexcept;
+ [[nodiscard]] double maximum_corner_speed(double curvature_per_m,double grade_rad=0.0,double bank_rad=0.0)const noexcept;
  [[nodiscard]] double turn_anticipation_distance(double speed_mps,double deceleration_mps2)const noexcept;
  [[nodiscard]] WheelSpeeds wheel_speeds(double linear_speed_mps,double curvature_per_m)const noexcept;
  [[nodiscard]] MotionPlan plan(const PathSample* path,std::size_t count,double terminal_speed_mps=0.0)const noexcept;
