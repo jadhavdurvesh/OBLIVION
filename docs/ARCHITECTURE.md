@@ -28,8 +28,15 @@ For left and right wheel linear velocities v_l and v_r, and wheel separation b:
 - v_l = v - omega * b / 2
 - v_r = v + omega * b / 2
 
-The deterministic host-side plant simulator adds first-order motor lag, wheel
-acceleration limits and a traction factor. A separate planar force/yaw model
+The deterministic host-side differential-drive plant adds first-order motor lag, wheel
+acceleration limits and a traction factor. A separate initial 6-DOF rigid-body
+plant uses quaternion attitude, wheel rotational states, motor torque response,
+four-corner suspension/contact forces, simplified tire slip and friction
+saturation, gravity and aerodynamic drag. Its native trace can be replayed in
+the Three.js viewer under simulator/web. This is not yet a fully calibrated
+digital twin: detailed collision/contact geometry, full suspension kinematics,
+realistic tire relaxation, motor electrical models and line-sensor raycasting
+remain future work. A separate planar force/yaw model
 includes mass, yaw inertia, grade, banking, rolling resistance, drag and a
 simplified per-wheel friction budget. The autonomous track runner connects
 parametric track geometry, synthetic reflectance sensors, line perception,
