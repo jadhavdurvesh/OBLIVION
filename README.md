@@ -35,9 +35,12 @@ The first milestone establishes a portable C++17 foundation:
 - Deterministic differential-drive plant simulator with motor lag, acceleration and traction parameters.
 - Planar force/yaw dynamics prototype with gravity, slope, banking, inertia and friction limits.
 - Curvature-aware motion planner with wheel-speed allocation, turn anticipation and forward/backward speed profiling.
+- Parametric straight/arc track builder and deterministic reflectance-array simulation.
+- Closed-loop autonomous track runner integrating trajectory planning, reflectance perception, PID steering, motor limiting and the differential-drive plant.
+- Integration test and runnable straight-track simulation demo (host simulation only; not physical-robot validation).
 - Dependency-free unit tests for kinematics, perception, PID and actuator limiting, plus a small executable example.
 
-This foundation is not yet a competition-ready robot. This is an actively developing foundation, not yet a competition-ready robot. H-infinity synthesis, constrained MPC, complete nonlinear plant validation, neural/RL policy training, state estimation, mapping, target-specific drivers and physical validation remain tracked work. See the master roadmap for the full feature register and exact completion gates.
+This foundation is not yet a competition-ready robot. The closed-loop track runner is an initial simulation integration, not a validated high-speed competition controller. H-infinity synthesis, constrained MPC, complete nonlinear plant validation, neural/RL policy training, state estimation, mapping, target-specific drivers and physical validation remain tracked work. See the master roadmap for the full feature register and exact completion gates.
 
 ## Repository layout
 
@@ -60,6 +63,7 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ctest --test-dir build --output-on-failure
 ./build/oblivion_demo
+./build/oblivion_track_demo
 ```
 
 On Windows, the demo may be located at `build/Release/oblivion_demo.exe`, depending on the generator.
