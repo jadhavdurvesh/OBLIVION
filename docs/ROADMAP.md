@@ -175,6 +175,28 @@ documented plant model before supervisor selection.
 - [ ] C ABI boundaries and cross-language test vectors where multiple languages
       exchange data.
 
+ 
+## M12 — Software-only mathematical motion intelligence
+- [x] Signed path curvature from three-point geometry.
+- [x] Differential wheel-speed allocation from linear speed and curvature.
+- [x] Turn anticipation using latency, braking distance and safety margin.
+- [x] Curvature, yaw-rate and outer-wheel-speed corner velocity limits.
+- [x] Forward acceleration and backward braking speed-profile passes.
+- [x] Grade-aware longitudinal acceleration and braking approximation.
+- [x] Bank-aware lateral acceleration envelope (simplified planar model).
+- [x] Planar force model with mass, yaw inertia, differential wheel force,
+      rolling resistance, quadratic drag and gravity components.
+- [x] Friction-circle-inspired per-wheel traction limiting prototype.
+- [ ] Jerk-limited S-curve trajectory generation and continuous-time profiles.
+- [ ] Load transfer, center-of-mass dynamics and wheel normal-load estimation.
+- [ ] Wheel rotational inertia, motor torque-speed curve and drivetrain losses.
+- [ ] Battery/electrical motor model including back-EMF, resistance and current.
+- [ ] Tire relaxation, lateral slip, longitudinal slip and combined-slip model.
+- [ ] Full 3D roll/pitch dynamics for uneven terrain (only if robot geometry warrants).
+- [ ] Uncertainty-aware trajectory optimization and robust braking margins.
+- [ ] Receding-horizon path tracking with obstacle and track-boundary constraints.
+- [ ] Independent derivation review and numerical validation against reference cases.
+
 ## Completion gates
 A feature is not complete because a file, class, interface, placeholder or
 roadmap checkbox exists. Completion requires:
