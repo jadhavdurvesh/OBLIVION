@@ -30,6 +30,9 @@ The first milestone establishes a portable C++17 foundation:
 - Controller interface and an advanced controller laboratory: PID, LQR runtime feedback, finite-horizon MPC prototype, sliding-mode control, ADRC prototype, backstepping feedback, adaptive PD, gain scheduling, fuzzy feedback and robust feedback prototype.
 - Controller supervisor with explicit selection and fail-closed invalid-output handling.
 - Motor-command safety limiting.
+- Advanced controller laboratory: LQR, MPC, SMC, ADRC, backstepping, adaptive PD, gain scheduling, fuzzy feedback, robust feedback and H-infinity runtime realization.
+- Offline H-infinity synthesis utility (`python/control/synthesize_hinfinity.py`).
+- Deterministic differential-drive plant simulator with motor lag, acceleration and traction parameters.
 - Dependency-free unit tests for kinematics, perception, PID and actuator limiting, plus a small executable example.
 
 This foundation is not yet a competition-ready robot. This is an actively developing foundation, not yet a competition-ready robot. H-infinity synthesis, constrained MPC, complete nonlinear plant validation, neural/RL policy training, state estimation, mapping, target-specific drivers and physical validation remain tracked work. See the master roadmap for the full feature register and exact completion gates.
