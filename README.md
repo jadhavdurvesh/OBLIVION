@@ -39,7 +39,9 @@ The first milestone establishes a portable C++17 foundation:
 - Deterministic reflectance-array simulation with seeded noise and sensor sample-dropout fault injection.
 - Closed-loop simulation fails safe on invalid sensor samples and reports sensor faults.
 - Closed-loop autonomous track runner integrating trajectory planning, reflectance perception, PID steering, motor limiting and the differential-drive plant.
-- Integration test and runnable straight-track simulation demo (host simulation only; not physical-robot validation).
+- Integration tests for straight-track completion, controller injection, sensor-fault safe stops, complex track geometry and exact gap boundaries.
+- Controller-injection benchmark executable comparing PID, LQR, sliding-mode and MPC on the same seeded S-bend scenario.
+- Runnable straight-track simulation demo (host simulation only; not physical-robot validation).
 - Dependency-free unit tests for kinematics, perception, PID and actuator limiting, plus a small executable example.
 
 This foundation is not yet a competition-ready robot. The closed-loop track runner is an initial simulation integration, not a validated high-speed competition controller. H-infinity synthesis, constrained MPC, complete nonlinear plant validation, neural/RL policy training, state estimation, mapping, target-specific drivers and physical validation remain tracked work. See the master roadmap for the full feature register and exact completion gates.
@@ -66,9 +68,10 @@ cmake --build build --config Release
 ctest --test-dir build --output-on-failure
 ./build/oblivion_demo
 ./build/oblivion_track_demo
+./build/oblivion_controller_benchmark
 ```
 
-On Windows, the demo may be located at `build/Release/oblivion_demo.exe`, depending on the generator.
+On Windows, the demos may be located under `build/Release/`, depending on the generator. The controller benchmark prints CSV-style run metrics for repeatable comparisons.
 
 ## Language strategy
 
