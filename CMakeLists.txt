@@ -13,6 +13,7 @@ add_library(oblivion_core
     src/safety/motor_limiter.cpp
     src/simulation/differential_drive_plant.cpp
     src/simulation/track_simulator.cpp
+    src/simulation/autonomous_track_runner.cpp
     src/motion/dynamics.cpp
     src/motion/planner.cpp
 )
@@ -28,6 +29,8 @@ endif()
 
 if(OBLIVION_BUILD_EXAMPLES)
     add_executable(oblivion_demo examples/core_demo.cpp)
+    add_executable(oblivion_track_demo examples/track_runner_demo.cpp)
+    target_link_libraries(oblivion_track_demo PRIVATE oblivion_core)
     target_link_libraries(oblivion_demo PRIVATE oblivion_core)
 endif()
 
@@ -42,6 +45,7 @@ if(OBLIVION_BUILD_TESTS)
         tests/test_hinfinity.cpp
         tests/test_simulation.cpp
         tests/test_track_simulator.cpp
+        tests/test_autonomous_track_runner.cpp
         tests/test_dynamics.cpp
         tests/test_motion_planner.cpp
         tests/test_safety.cpp
