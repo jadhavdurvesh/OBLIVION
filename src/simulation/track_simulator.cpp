@@ -1,6 +1,8 @@
 #include "oblivion/simulation/track_simulator.hpp"
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstddef>
 #include <limits>
 namespace oblivion {
 namespace {
@@ -87,14 +89,50 @@ bool TrackBuilder::add_hairpin(TrackPoint start,double radius,int direction,std:
 }
 bool TrackBuilder::add_gap(double start_distance,double length)noexcept{
  if(track_.point_count<2||!std::isfinite(start_distance)||!std::isfinite(length)||start_distance<0||length<=0)return false;
- double traversed=0.0;bool changed=false;
+ double total=0.0;
+ for(std::size_t i=1;i<track_.point_count;++i)total+=dist(track_.centerline[i-1],track_.centerline[i]);
+ if(start_distance>=total||!std::isfinite(total))return false;
+ const double gap_start=start_distance;
+ const double gap_end=std::min(total,start_distance+length);
+ if(gap_end<=gap_start)return false;
+ std::array<TrackPoint,kMaxTrackPoints> points{};
+ std::array<bool,kMaxTrackPoints> visible{};
+ std::size_t count=0;
+ double traversed=0.0;
  for(std::size_t i=1;i<track_.point_count;++i){
-  const double segment=dist(track_.centerline[i-1],track_.centerline[i]);
-  const double end=traversed+segment;
-  if(end>start_distance&&traversed<start_distance+length){track_.visible_segments[i]=false;changed=true;}
-  traversed=end;
+  const TrackPoint a=track_.centerline[i-1],b=track_.centerline[i];
+  const double segment_length=dist(a,b);
+  if(segment_length<1e-12)continue;
+  std::array<double,4> cuts{{0.0,1.0,0.0,0.0}};
+  std::size_t cut_count=2;
+  for(double boundary:{gap_start,gap_end}){
+   const double t=(boundary-traversed)/segment_length;
+   if(t>1e-12&&t<1.0-1e-12)cuts[cut_count++]=t;
+  }
+  std::sort(cuts.begin(),cuts.begin()+static_cast<std::ptrdiff_t>(cut_count));
+  for(std::size_t j=0;j+1<cut_count;++j){
+   const double ta=cuts[j],tb=cuts[j+1];
+   if(tb-ta<1e-12)continue;
+   const TrackPoint p0{a.x_m+ta*(b.x_m-a.x_m),a.y_m+ta*(b.y_m-a.y_m)};
+   const TrackPoint p1{a.x_m+tb*(b.x_m-a.x_m),a.y_m+tb*(b.y_m-a.y_m)};
+   if(count==0)points[count++]=p0;
+   else if(dist(points[count-1],p0)>1e-8){
+    if(count>=points.size())return false;
+    visible[count]=track_.visible_segments[i];
+    points[count++]=p0;
+   }
+   if(count>=points.size())return false;
+   const double midpoint_distance=traversed+0.5*(ta+tb)*segment_length;
+   visible[count]=midpoint_distance<gap_start||midpoint_distance>gap_end;
+   points[count++]=p1;
+  }
+  traversed+=segment_length;
  }
- return changed;
+ if(count<2)return false;
+ track_.centerline=points;
+ track_.visible_segments=visible;
+ track_.point_count=count;
+ return true;
 }
 bool TrackBuilder::add_branch(TrackBranchKind kind,const TrackPoint*p,std::size_t n)noexcept{
  if(!p||n<2||n>kMaxBranchPoints||track_.branch_count>=track_.branches.size())return false;
