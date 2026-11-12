@@ -16,12 +16,13 @@ int main(int argc,char**argv){
  std::ofstream out(path);if(!out){std::cerr<<"Cannot write trace: "<<path<<'\n';return 2;}
  out<<"{\n  \"format\": \"oblivion-3d-trace-v1\",\n  \"units\": \"SI\",\n  \"samples\": [\n";
  constexpr double dt=0.001;constexpr int steps=6000;
+ RigidBody3DOutput last_output{};
  for(int i=0;i<=steps;++i){
   const double t=i*dt;
   if(i>0){
    const double steer=0.24*std::sin(2.0*3.14159265358979323846*t/3.2);
    RigidBody3DInput input{};input.motors={0.48-steer,0.48+steer};
-   const auto result=sim.step(input,dt);if(!result.valid){std::cerr<<"3D simulation became invalid at "<<t<<" s\n";return 3;}
+   last_output=sim.step(input,dt);if(!last_output.valid){std::cerr<<"3D simulation became invalid at "<<t<<" s\n";return 3;}
   }
   const auto&s=sim.state();
   const auto&q=s.pose.orientation;
