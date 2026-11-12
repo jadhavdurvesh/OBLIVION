@@ -11,9 +11,9 @@
 - [ ] Static analysis and formatting checks
 
 ## M1 — Perception contracts
-- [ ] Reflectance calibration model
-- [ ] Line observation and confidence model
-- [ ] Weighted line position and width estimation
+- [x] Reflectance calibration model (normalized per-sensor dark/light endpoints)
+- [x] Line observation and confidence model
+- [x] Weighted line position and width estimation
 - [ ] Junction/curve/lost-line feature extraction
 - [ ] Synthetic sensor test fixtures
 
