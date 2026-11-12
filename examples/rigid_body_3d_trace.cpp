@@ -35,7 +35,7 @@ int main(int argc,char**argv){
      <<",\"q\":{\"w\":"<<q.w<<",\"x\":"<<q.x<<",\"y\":"<<q.y<<",\"z\":"<<q.z<<"}"
      <<",\"velocity\":{\"x\":"<<s.linear_velocity_world_mps.x
      <<",\"y\":"<<s.linear_velocity_world_mps.y<<",\"z\":"<<s.linear_velocity_world_mps.z<<"}"
-     <<",\"contacts\":4}";
+     <<",\"contacts\":"<<(i==0?4:last_output.contact_points)<<",\"airborne\":"<<(i>0&&last_output.airborne?"true":"false")<<"}";
  }
  out<<"\n  ]\n}\n";out.close();
  std::cout<<"Wrote "<<steps+1<<" 3D physics samples to "<<path<<'\n';
