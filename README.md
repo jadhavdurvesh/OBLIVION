@@ -9,7 +9,7 @@ OBLIVION is an embedded-first autonomous robotics intelligence platform. Its fir
 - **Sprint** — high-speed line tracking, predictive steering, trajectory and velocity optimization.
 - **Explore** — track discovery, graph mapping, route memory, dead-end handling and mission-aware navigation.
 
-The project is designed to grow into a reusable robotics platform. It is not a dashboard and it is not a single PID sketch: the deliverable is the software that perceives sensor data, estimates robot state, plans actions and controls actuators on the robot.
+The project is designed to grow into a reusable robotics platform. The initial 3D simulation workflow is documented in [simulator/README.md](simulator/README.md). It is not a dashboard and it is not a single PID sketch: the deliverable is the software that perceives sensor data, estimates robot state, plans actions and controls actuators on the robot.
 
 ## Engineering principles
 
@@ -33,6 +33,8 @@ The first milestone establishes a portable C++17 foundation:
 - Advanced controller laboratory: LQR, MPC, SMC, ADRC, backstepping, adaptive PD, gain scheduling, fuzzy feedback, robust feedback and H-infinity runtime realization.
 - Offline H-infinity synthesis utility (`python/control/synthesize_hinfinity.py`).
 - Deterministic differential-drive plant simulator with motor lag, acceleration and traction parameters.
+- Initial 6-DOF rigid-body 3D plant with quaternion attitude, four-corner suspension/contact approximation, wheel rotational dynamics, tire slip/friction saturation, gravity, drag and motor torque response.
+- Native 3D trace exporter and interactive Three.js viewer for robot pose playback, camera orbit, track scenarios, telemetry and trajectory inspection.
 - Planar force/yaw dynamics prototype with gravity, slope, banking, inertia and friction limits.
 - Curvature-aware motion planner with wheel-speed allocation, turn anticipation and forward/backward speed profiling.
 - Parametric track builder for straights, circular arcs, S-bends and hairpins, with fork/intersection/decoy branch geometry and configurable line gaps.
@@ -69,6 +71,7 @@ ctest --test-dir build --output-on-failure
 ./build/oblivion_demo
 ./build/oblivion_track_demo
 ./build/oblivion_controller_benchmark
+./build/oblivion_3d_trace
 ```
 
 On Windows, the demos may be located under `build/Release/`, depending on the generator. The controller benchmark prints CSV-style run metrics for repeatable comparisons.
