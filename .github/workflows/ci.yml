@@ -24,12 +24,18 @@ jobs:
             compiler: clang++
           - name: Windows MSVC
             os: windows-latest
-            compiler: cl
+            compiler: msvc
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Configure
+      - name: Configure (GCC / Clang)
+        if: runner.os == 'Linux'
+        env:
+          CXX: ${{ matrix.compiler }}
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Configure (MSVC)
+        if: runner.os == 'Windows'
+        run: cmake -S . -B build
       - name: Build
         run: cmake --build build --config Release --parallel
       - name: Test
