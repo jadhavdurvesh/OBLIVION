@@ -14,6 +14,9 @@ void test_advanced_controllers(){
  require(adaptive.update(in).valid,"adaptive PD invalid");
  const double old_gain=adaptive.position_gain(); adaptive.update({0.5,0.2,0.1});
  require(adaptive.position_gain()>=old_gain,"adaptive gain did not adapt");
+ GainScheduleConfig gs{}; gs.point_count=2; gs.limits=lim;
+ gs.points[0]={0.0,1.0,0.1}; gs.points[1]={1.0,3.0,0.5};
+ GainScheduledController scheduled(gs); require(scheduled.update(in).valid,"gain schedule invalid");
  FuzzyController fuzzy(0.5,1.0,lim); require(fuzzy.update(in).valid,"fuzzy invalid");
  RobustFeedbackController robust({2.0,0.5,0.2,lim}); require(robust.update(in).valid,"robust feedback invalid");
  ControllerSupervisor supervisor(lim); require(!supervisor.has_controller(),"supervisor unexpectedly active");
