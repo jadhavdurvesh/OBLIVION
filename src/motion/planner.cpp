@@ -32,7 +32,7 @@ double MotionPlanner::maximum_corner_speed(double k,double grade,double bank)con
  const double abs_k=std::abs(k);
  if(abs_k<kEpsilon)return constraints_.maximum_speed_mps;
  const double effective_lateral=std::max(0.0,constraints_.maximum_lateral_acceleration_mps2+
-      constraints_.gravity_mps2*std::sin(bank)*std::cos(grade));
+      std::copysign(constraints_.gravity_mps2*std::sin(bank)*std::cos(grade),k));
  const double lateral=std::sqrt(effective_lateral/abs_k);
  const double yaw=constraints_.maximum_yaw_rate_radps/abs_k;
  const double wheel=constraints_.maximum_wheel_speed_mps/
