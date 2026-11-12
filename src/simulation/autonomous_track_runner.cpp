@@ -22,9 +22,26 @@ TrackRunMetrics AutonomousTrackRunner::run(const Track&t,const Pose2D&initial,do
  if(!configuration_valid()||!t.valid()||!std::isfinite(dt)||dt<=0||max_steps==0||
     !std::isfinite(initial.x_m)||!std::isfinite(initial.y_m)||!std::isfinite(initial.heading_rad))return metrics;
  std::array<PathSample,kMaxTrajectoryPoints> path{};
- const std::size_t count=t.point_count;
- if(count<2||count>path.size())return metrics;
- for(std::size_t i=0;i<count;++i)path[i]={{t.centerline[i].x_m,t.centerline[i].y_m},0.0,0.0};
+ std::array<double,kMaxTrajectoryPoints> cumulative{};
+ if(t.point_count<2||t.point_count>t.centerline.size())return metrics;
+ for(std::size_t i=1;i<t.point_count;++i){
+  const double dx=t.centerline[i].x_m-t.centerline[i-1].x_m;
+  const double dy=t.centerline[i].y_m-t.centerline[i-1].y_m;
+  cumulative[i]=cumulative[i-1]+std::hypot(dx,dy);
+ }
+ const double total_length=cumulative[t.point_count-1];
+ if(!std::isfinite(total_length)||total_length<1e-6)return metrics;
+ const std::size_t count=std::min(kMaxTrajectoryPoints,
+     std::max<std::size_t>(2,static_cast<std::size_t>(std::ceil(total_length/0.02))+1));
+ for(std::size_t sample=0;sample<count;++sample){
+  const double distance=total_length*static_cast<double>(sample)/static_cast<double>(count-1);
+  std::size_t segment=1;
+  while(segment<t.point_count-1&&cumulative[segment]<distance)++segment;
+  const double segment_length=cumulative[segment]-cumulative[segment-1];
+  const double fraction=segment_length>1e-12?(distance-cumulative[segment-1])/segment_length:0.0;
+  const auto&a=t.centerline[segment-1];const auto&b=t.centerline[segment];
+  path[sample]={{a.x_m+fraction*(b.x_m-a.x_m),a.y_m+fraction*(b.y_m-a.y_m)},0.0,0.0};
+ }
  metrics.planned_motion=planner_.plan(path.data(),count,0.0);
  if(!metrics.planned_motion.valid)return metrics;
  plant_.reset(initial);steering_.reset();
