@@ -27,11 +27,12 @@ The first milestone establishes a portable C++17 foundation:
 - Differential-drive kinematic model.
 - Calibrated reflectance perception with weighted line-position, width and confidence estimates.
 - Shared robot, sensor and actuator data types.
-- Controller interface and a baseline PID implementation.
+- Controller interface and an advanced controller laboratory: PID, LQR runtime feedback, finite-horizon MPC prototype, sliding-mode control, ADRC prototype, backstepping feedback, adaptive PD, gain scheduling, fuzzy feedback and robust feedback prototype.
+- Controller supervisor with explicit selection and fail-closed invalid-output handling.
 - Motor-command safety limiting.
 - Dependency-free unit tests for kinematics, perception, PID and actuator limiting, plus a small executable example.
 
-This foundation is not yet a competition-ready robot. Hardware drivers, calibrated dynamics, localization, perception, mapping, advanced controllers and physical validation are subsequent milestones.
+This foundation is not yet a competition-ready robot. This is an actively developing foundation, not yet a competition-ready robot. H-infinity synthesis, constrained MPC, complete nonlinear plant validation, neural/RL policy training, state estimation, mapping, target-specific drivers and physical validation remain tracked work. See the master roadmap for the full feature register and exact completion gates.
 
 ## Repository layout
 
