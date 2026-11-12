@@ -8,7 +8,11 @@ namespace oblivion {
 AutonomousTrackRunner::AutonomousTrackRunner(TrackRunnerConfig c)noexcept
  :config_(c),plant_(c.plant),sensor_simulator_(c.simulated_sensors),
   perception_(c.perception),planner_(c.motion),steering_(c.steering_gains,c.steering_limits),
-  motor_limiter_(c.motor_command_limit){}
+  motor_limiter_(c.motor_command_limit),active_controller_(&steering_){}
+AutonomousTrackRunner::AutonomousTrackRunner(TrackRunnerConfig c,IController& controller)noexcept
+ :config_(c),plant_(c.plant),sensor_simulator_(c.simulated_sensors),
+  perception_(c.perception),planner_(c.motion),steering_(c.steering_gains,c.steering_limits),
+  motor_limiter_(c.motor_command_limit),active_controller_(&controller){}
 bool AutonomousTrackRunner::configuration_valid()const noexcept{
  return plant_.configuration_valid()&&sensor_simulator_.configuration_valid()&&
  perception_.configuration_valid()&&planner_.constraints_valid()&&motor_limiter_.configuration_valid()&&
@@ -49,7 +53,7 @@ TrackRunMetrics AutonomousTrackRunner::run(const Track&t,const Pose2D&initial,do
  }
  metrics.planned_motion=planner_.plan(path.data(),count,0.0);
  if(!metrics.planned_motion.valid)return metrics;
- plant_.reset(initial);steering_.reset();
+ plant_.reset(initial);active_controller_->reset();
  std::array<double,kMaxReflectanceSensors> raw{};
  double squared_error=0.0,sum_error=0.0;
  const double maximum_time=std::min(config_.maximum_run_time_seconds,dt*static_cast<double>(max_steps));
@@ -97,7 +101,7 @@ TrackRunMetrics AutonomousTrackRunner::run(const Track&t,const Pose2D&initial,do
   const auto& target=metrics.planned_motion.points[nearest];
   const double base_left=target.left_wheel_speed_mps/max_speed;
   const double base_right=target.right_wheel_speed_mps/max_speed;
-  const auto control=steering_.update({error,0.0,dt});
+  const auto control=active_controller_->update({error,0.0,dt});
   if(!control.valid)return metrics;
   // Positive sensor error means the line is left of the robot: slow left,
   // speed right to create positive (left) yaw.
