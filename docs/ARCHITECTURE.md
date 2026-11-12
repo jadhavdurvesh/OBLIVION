@@ -34,10 +34,7 @@ saturation, backlash and surface effects are not yet represented.
 
 ## Controller strategy
 Controllers implement a common interface and are independently testable.
-Planned implementations include PID, LQR, MPC, sliding-mode control, H-infinity,
-ADRC, backstepping, adaptive control, gain scheduling and fuzzy control.
-Neural and reinforcement-learning components are research/optimization
-components until validated.
+The current controller laboratory includes PID, LQR runtime feedback with precomputed gains, a finite-horizon MPC prototype, sliding-mode control, ADRC, backstepping, adaptive PD, gain scheduling, fuzzy feedback and a bounded robust-feedback prototype. These are at different maturity levels; see the master roadmap. In particular, the robust-feedback prototype is not H-infinity synthesis, and a production LQR requires plant-specific offline Riccati design and validation. Constrained MPC, H-infinity synthesis/runtime realization, neural inference and reinforcement-learning policies remain explicit tracked work. Neural and reinforcement-learning components are research/optimization components until validated.
 
 The supervisor must not blindly average controller outputs. It must use
 explicit selection or mathematically justified blending, enforce actuator and
