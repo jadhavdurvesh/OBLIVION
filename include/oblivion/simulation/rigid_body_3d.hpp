@@ -31,6 +31,8 @@ struct RigidBody3DState {
  Vector3 angular_velocity_body_radps{};
  double left_wheel_radps{0.0};
  double right_wheel_radps{0.0};
+ double left_motor_torque_nm{0.0};
+ double right_motor_torque_nm{0.0};
  double time_s{0.0};
 };
 struct RigidBody3DInput {
