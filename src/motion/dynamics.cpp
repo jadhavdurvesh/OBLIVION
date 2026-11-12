@@ -47,12 +47,16 @@ DynamicsResult DifferentialDriveDynamics::step(const DynamicsState&s,const Dynam
  const double required_lateral_accel=lateral_kinematic-lateral_gravity;
  out.required_lateral_force_n=mass*required_lateral_accel;
  const double friction_total=p.friction_coefficient*normal;
- const double lateral_use=std::min(std::abs(out.required_lateral_force_n),friction_total);
- const double longitudinal_capacity=std::sqrt(std::max(0.0,
-     friction_total*friction_total-lateral_use*lateral_use));
- out.available_longitudinal_force_n=longitudinal_capacity;
- out.applied_longitudinal_force_n=std::clamp(requested,-longitudinal_capacity,longitudinal_capacity);
- out.traction_limited=std::abs(requested)>longitudinal_capacity+1e-9||
+ const double per_wheel_friction=0.5*p.friction_coefficient*normal;
+ const double per_wheel_lateral=0.5*std::abs(out.required_lateral_force_n);
+ const double per_wheel_longitudinal=std::sqrt(std::max(0.0,
+     per_wheel_friction*per_wheel_friction-per_wheel_lateral*per_wheel_lateral));
+ out.available_longitudinal_force_n=2.0*per_wheel_longitudinal;
+ const double applied_left=std::clamp(i.left_wheel_force_n,-per_wheel_longitudinal,per_wheel_longitudinal);
+ const double applied_right=std::clamp(i.right_wheel_force_n,-per_wheel_longitudinal,per_wheel_longitudinal);
+ out.applied_longitudinal_force_n=applied_left+applied_right;
+ out.traction_limited=std::abs(applied_left-i.left_wheel_force_n)>1e-9||
+                      std::abs(applied_right-i.right_wheel_force_n)>1e-9||
                       std::abs(out.required_lateral_force_n)>friction_total+1e-9;
  out.traction_utilization=friction_total>kEpsilon?
    std::sqrt(out.applied_longitudinal_force_n*out.applied_longitudinal_force_n+
@@ -62,8 +66,8 @@ DynamicsResult DifferentialDriveDynamics::step(const DynamicsState&s,const Dynam
  const double drag=p.linear_drag_coefficient*s.forward_speed_mps*std::abs(s.forward_speed_mps);
  const double grade_force=mass*g*std::sin(i.road_grade_rad);
  const double ax=(out.applied_longitudinal_force_n-rolling-drag-grade_force)/mass;
- const double left=i.left_wheel_force_n;
- const double right=i.right_wheel_force_n;
+ const double left=applied_left;
+ const double right=applied_right;
  const double yaw_torque=0.5*p.wheelbase_track_m*(right-left)-
                          p.angular_damping_n_m_per_radps*s.yaw_rate_radps;
  const double yaw_accel=yaw_torque/p.yaw_inertia_kg_m2;
