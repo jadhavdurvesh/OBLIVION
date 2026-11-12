@@ -58,8 +58,7 @@ documented plant model before supervisor selection.
       derivative-on-measurement.
 - [~] LQR runtime feedback using precomputed gains; offline Riccati synthesis,
       plant-specific Q/R selection and stability validation remain.
-- [~] MPC finite-horizon candidate-search prototype; constrained multivariable
-      MPC, solver timing, feasibility handling and model validation remain.
+- [~] MPC deterministic three-segment finite-horizon predictive optimizer with bounded acceleration, rate, actuator and slew-cost constraints; full multivariable plant constraints, solver timing and model validation remain.
 - [x] Sliding-mode control prototype with boundary-layer saturation.
 - [~] ADRC observer/control prototype; plant-relative bandwidth tuning,
       noise robustness and discrete-time observer validation remain.
@@ -71,8 +70,8 @@ documented plant model before supervisor selection.
       tune against benchmark data.
 - [~] Robust feedback prototype with a bounded uncertainty correction; this is
       NOT a synthesized H-infinity controller.
-- [ ] H-infinity controller synthesis and generalized plant formulation.
-- [ ] H-infinity runtime realization from validated synthesis output.
+- [~] Offline continuous-time H-infinity state-feedback synthesis script using a bounded-real LMI (requires identified plant matrices and external solver validation).
+- [x] H-infinity runtime realization from supplied precomputed gains with finite-state envelope and actuator limits; hardware certification remains outstanding.
 - [ ] Disturbance observer and explicit robust/adaptive comparison benchmarks.
 - [ ] Bumpless transfer and state handover between controllers.
 - [ ] Controller health, numerical-fault and deadline monitors.
@@ -130,7 +129,7 @@ documented plant model before supervisor selection.
 - [ ] Explore mode recovery, replanning and resource limits.
 
 ## M8 — Simulation, digital twin and verification
-- [ ] Deterministic differential-drive simulator.
+- [x] Deterministic differential-drive plant with motor lag, acceleration and traction factor.
 - [ ] Motor lag, acceleration, braking, saturation and wheel-slip models.
 - [ ] Sensor geometry, noise, drift, missing samples and failure injection.
 - [ ] Parametric track generator: straights, curves, S-bends, junctions, gaps,
