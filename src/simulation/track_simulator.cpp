@@ -55,7 +55,7 @@ bool TrackBuilder::add_straight(TrackPoint a,TrackPoint b)noexcept{
  return append(a)&&append(b);
 }
 bool TrackBuilder::add_polyline(const TrackPoint*p,std::size_t n)noexcept{
- if(!p||n<2||n>kMaxTrackPoints-track_.point_count+1)return false;
+ if(!p||n<2||n>kMaxTrackPoints-track_.point_count+(track_.point_count?1U:0U))return false;
  for(std::size_t i=0;i<n;++i)if(!std::isfinite(p[i].x_m)||!std::isfinite(p[i].y_m))return false;
  if(track_.point_count&&dist(track_.centerline[track_.point_count-1],p[0])>1e-6)return false;
  for(std::size_t i=0;i<n;++i)if(!append(p[i]))return false;
@@ -63,7 +63,7 @@ bool TrackBuilder::add_polyline(const TrackPoint*p,std::size_t n)noexcept{
 }
 bool TrackBuilder::add_arc(TrackPoint c,double r,double start,double sweep,std::size_t n)noexcept{
  if(!std::isfinite(c.x_m)||!std::isfinite(c.y_m)||!std::isfinite(r)||!std::isfinite(start)||!std::isfinite(sweep)||r<=0||std::abs(sweep)<1e-6||n<2||n>kMaxTrackPoints)return false;
- if(n>kMaxTrackPoints-track_.point_count+1)return false;
+ if(track_.point_count==0 ? n>=kMaxTrackPoints : n>kMaxTrackPoints-track_.point_count)return false;
  const TrackPoint first{c.x_m+r*std::cos(start),c.y_m+r*std::sin(start)};
  if(track_.point_count&&dist(track_.centerline[track_.point_count-1],first)>1e-5)return false;
  for(std::size_t i=0;i<=n;++i){const double a=start+sweep*static_cast<double>(i)/static_cast<double>(n);if(!append({c.x_m+r*std::cos(a),c.y_m+r*std::sin(a)}))return false;}
