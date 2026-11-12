@@ -4,7 +4,8 @@ void test_kinematics();
 void test_pid();
 void test_perception();
 void test_safety();
+void test_advanced_controllers();
 int main() {
-    try { test_kinematics(); test_perception(); test_pid(); test_safety(); std::cout << "All OBLIVION tests passed.\n"; return 0; }
+    try { test_kinematics(); test_perception(); test_pid(); test_safety(); test_advanced_controllers(); std::cout << "All OBLIVION tests passed.\n"; return 0; }
     catch (const std::exception& e) { std::cerr << "TEST FAILURE: " << e.what() << '\n'; return 1; }
 }
