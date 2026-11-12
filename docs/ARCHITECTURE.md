@@ -28,9 +28,23 @@ For left and right wheel linear velocities v_l and v_r, and wheel separation b:
 - v_l = v - omega * b / 2
 - v_r = v + omega * b / 2
 
-A deterministic host-side plant simulator adds first-order motor lag, wheel acceleration limits and a traction factor. It is an initial plant model, not a validated digital twin. Pose integration currently uses midpoint-heading integration. This is a
-kinematic model, not a calibrated dynamic model; wheel slip, motor lag,
-saturation, backlash and surface effects are not yet represented.
+The deterministic host-side plant simulator adds first-order motor lag, wheel
+acceleration limits and a traction factor. A separate planar force/yaw model
+includes mass, yaw inertia, grade, banking, rolling resistance, drag and a
+simplified per-wheel friction budget. The autonomous track runner connects
+parametric track geometry, synthetic reflectance sensors, line perception,
+trajectory planning, planner-derived left/right wheel-speed feedforward,
+bounded PID line correction, motor limiting and the differential-drive plant.
+It reports tracking error, line-loss counts, simulated time and completion.
+Track paths are resampled before planning so sparse geometric input does not
+create discontinuous speed commands.
+
+This is an initial host-side simulation and closed-loop integration, not a
+validated digital twin or competition-ready controller. The current runner
+uses PID correction and a nearest-point reference; it does not yet implement
+full pure-pursuit preview, MPC path tracking, dynamic load transfer, wheel
+rotational inertia, calibrated motor electrical dynamics or tire relaxation.
+All results are simulation evidence only.
 
 
 ## Motion mathematics and physical modelling
