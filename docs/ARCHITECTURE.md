@@ -28,13 +28,13 @@ For left and right wheel linear velocities v_l and v_r, and wheel separation b:
 - v_l = v - omega * b / 2
 - v_r = v + omega * b / 2
 
-Pose integration currently uses midpoint-heading integration. This is a
+A deterministic host-side plant simulator adds first-order motor lag, wheel acceleration limits and a traction factor. It is an initial plant model, not a validated digital twin. Pose integration currently uses midpoint-heading integration. This is a
 kinematic model, not a calibrated dynamic model; wheel slip, motor lag,
 saturation, backlash and surface effects are not yet represented.
 
 ## Controller strategy
 Controllers implement a common interface and are independently testable.
-The current controller laboratory includes PID, LQR runtime feedback with precomputed gains, a finite-horizon MPC prototype, sliding-mode control, ADRC, backstepping, adaptive PD, gain scheduling, fuzzy feedback and a bounded robust-feedback prototype. These are at different maturity levels; see the master roadmap. In particular, the robust-feedback prototype is not H-infinity synthesis, and a production LQR requires plant-specific offline Riccati design and validation. Constrained MPC, H-infinity synthesis/runtime realization, neural inference and reinforcement-learning policies remain explicit tracked work. Neural and reinforcement-learning components are research/optimization components until validated.
+The current controller laboratory includes PID, LQR runtime feedback with precomputed gains, a finite-horizon MPC prototype, sliding-mode control, ADRC, backstepping, adaptive PD, gain scheduling, fuzzy feedback and a bounded robust-feedback prototype. These are at different maturity levels; see the master roadmap. In particular, the robust-feedback prototype is not H-infinity synthesis, and a production LQR requires plant-specific offline Riccati design and validation. MPC now has a deterministic three-segment predictive prototype with bounded actuator, acceleration, rate and slew-cost handling; it is not yet a full constrained multivariable optimizer. An offline Python bounded-real-LMI H-infinity synthesis utility and a fixed-memory runtime gain realization are present; generated gains are only as valid as the identified plant and solver result. Neural inference and reinforcement-learning policies remain explicit tracked work. Neural and reinforcement-learning components are research/optimization components until validated.
 
 The supervisor must not blindly average controller outputs. It must use
 explicit selection or mathematically justified blending, enforce actuator and
