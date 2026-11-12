@@ -7,7 +7,8 @@ void test_safety();
 void test_advanced_controllers();
 void test_hinfinity();
 void test_simulation();
-void test_track_simulator();\nvoid test_autonomous_track_runner();
+void test_track_simulator();
+void test_autonomous_track_runner();
 void test_dynamics();
 void test_motion_planner();
 int main() {
