@@ -12,6 +12,8 @@ AutonomousTrackRunner::AutonomousTrackRunner(TrackRunnerConfig c)noexcept
 bool AutonomousTrackRunner::configuration_valid()const noexcept{
  return plant_.configuration_valid()&&sensor_simulator_.configuration_valid()&&
  perception_.configuration_valid()&&planner_.constraints_valid()&&motor_limiter_.configuration_valid()&&
+ config_.simulated_sensors.sensor_count==config_.perception.sensor_count&&
+ config_.motor_command_limit<=1.0&&
  config_.motion.maximum_wheel_speed_mps<=config_.plant.maximum_wheel_speed_mps&&
  std::abs(config_.motion.wheel_track_m-config_.plant.track_width_m)<=1e-6&&
  std::isfinite(config_.sensor_forward_offset_m)&&config_.sensor_forward_offset_m>=0&&
