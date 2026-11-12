@@ -12,7 +12,5 @@ private:
     PidGains gains_;
     PidLimits limits_;
     double integral_{0.0};
-    double previous_error_{0.0};
-    bool has_previous_{false};
 };
 } // namespace oblivion
