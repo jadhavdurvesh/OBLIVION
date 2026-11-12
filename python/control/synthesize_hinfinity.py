@@ -20,7 +20,7 @@ def synthesize(a, b, e, c, d, solver=None):
     p = cp.Variable((n, n), symmetric=True)
     y = cp.Variable((m, n))
     gamma = cp.Variable(nonneg=True)
-    ap = a @ p + b @ y
+    ap = a @ p - b @ y
     cp_term = c @ p + d @ y
     # Continuous-time strict bounded-real LMI (strictness via epsilon I).
     lmi = cp.bmat([
