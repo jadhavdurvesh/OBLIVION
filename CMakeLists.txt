@@ -6,6 +6,7 @@ option(OBLIVION_BUILD_EXAMPLES "Build OBLIVION examples" ON)
 
 add_library(oblivion_core
     src/kinematics/differential_drive.cpp
+    src/perception/reflectance_processor.cpp
     src/control/pid_controller.cpp
     src/safety/motor_limiter.cpp
 )
@@ -29,6 +30,7 @@ if(OBLIVION_BUILD_TESTS)
     add_executable(oblivion_tests
         tests/test_main.cpp
         tests/test_kinematics.cpp
+        tests/test_perception.cpp
         tests/test_pid.cpp
         tests/test_safety.cpp
     )
