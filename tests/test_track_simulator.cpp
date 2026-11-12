@@ -28,7 +28,10 @@ void test_track_simulator(){
  require(broken.add_gap(0.35,0.15),"gap insertion failed");
  const auto broken_track=broken.build();
  require(broken_track.distance_to_centerline({0.4,0})<1e-9,"gap changed track geometry");
+ require(broken_track.distance_to_visible_line({0.2,0})<1e-9,"line before gap became invisible");
  require(broken_track.distance_to_visible_line({0.4,0})>0.05,"gap remains visible to virtual sensor");
+ require(broken_track.distance_to_visible_line({0.8,0})<1e-9,"line after gap became invisible");
+ require(broken_track.point_count==4,"gap boundaries were not inserted into sparse geometry");
  const TrackPoint fork[]={{0.5,0.0},{0.6,0.1},{0.8,0.2}};
  TrackBuilder branched(0.012);require(branched.add_straight({0,0},{1,0}),"branch base track failed");
  require(branched.add_branch(TrackBranchKind::Fork,fork,3),"branch insertion failed");
