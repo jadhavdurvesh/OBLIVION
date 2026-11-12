@@ -36,6 +36,9 @@ ControlOutput MpcController::update(const ControlInput& i) noexcept {
        c.effort_weight<=0||c.horizon_seconds<=0||c.maximum_acceleration<=0||
        c.maximum_rate<=0||c.slew_weight<0||c.candidate_count<3||c.candidate_count>11||
        c.prediction_steps<3||c.prediction_steps>60||!valid_limits(c.limits))return {0,false};
+    const double control_min=std::max(-c.maximum_acceleration,c.limits.minimum);
+    const double control_max=std::min(c.maximum_acceleration,c.limits.maximum);
+    if(control_min>control_max)return {0,false};
 
     constexpr std::size_t segments=3;
     std::array<double,segments> controls{{0.0,0.0,0.0}};
@@ -65,7 +68,7 @@ ControlOutput MpcController::update(const ControlInput& i) noexcept {
             for(unsigned candidate=0;candidate<c.candidate_count;++candidate){
                 const double fraction=(2.0*static_cast<double>(candidate)/
                     static_cast<double>(c.candidate_count-1U))-1.0;
-                const double trial=fraction*c.maximum_acceleration;
+                const double trial=control_min+0.5*(fraction+1.0)*(control_max-control_min);
                 auto proposed=controls;
                 proposed[segment]=trial;
                 const double cost=evaluate(proposed);
