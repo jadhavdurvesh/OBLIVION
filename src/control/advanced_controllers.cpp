@@ -1,6 +1,7 @@
 #include "oblivion/control/advanced_controllers.hpp"
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace oblivion {
 namespace {
