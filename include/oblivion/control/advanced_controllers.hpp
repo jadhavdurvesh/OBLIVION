@@ -22,7 +22,10 @@ struct MpcConfig {
     double effort_weight{0.2};
     double horizon_seconds{0.25};
     double maximum_acceleration{4.0};
-    unsigned candidate_count{ 9 };
+    unsigned candidate_count{  9 };
+    unsigned prediction_steps{  12 };
+    double maximum_rate{20.0};
+    double slew_weight{0.1};
     OutputLimits limits{};
 };
 class MpcController final : public IController {
