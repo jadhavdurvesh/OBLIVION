@@ -211,6 +211,18 @@ documented plant model before supervisor selection.
 - [ ] Receding-horizon path tracking with obstacle and track-boundary constraints.
 - [ ] Independent derivation review and numerical validation against reference cases.
 
+## M14 — Live engineering monitor
+- [x] Dedicated Live Monitor tab inside native Control Center.
+- [x] Received frame/byte counters, frame-rate counter and invalid-frame counter.
+- [x] Bounded raw packet inspector with timestamp, message type, sequence, payload length and hexadecimal bytes.
+- [x] Bounded raw payload-byte chart.
+- [x] Decoded/derived parameter table with explicit unavailable/provenance labels; no fabricated physical values.
+- [ ] Versioned typed telemetry schema for reflectance sensors, encoders, IMU, odometry, controller candidates, supervisor, execution timing, CPU/RAM, battery and faults.
+- [ ] Typed decoder, engineering-unit conversion, timestamp alignment and stale-data indicators.
+- [ ] Per-signal selectable charts, zoom/pan, trigger/cursors and exportable raw traces.
+- [ ] Controller comparison and arbitration live view.
+- [ ] Resource, WCET, jitter, deadline and communication diagnostics from target firmware.
+
 ## M13 — Native desktop control center
 - [x] Qt 6 Widgets desktop application target with optional CMake discovery.
 - [x] Serial-port discovery and connect/disconnect at an initial 115200 baud setting.
