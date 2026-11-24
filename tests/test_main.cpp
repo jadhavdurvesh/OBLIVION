@@ -1,7 +1,8 @@
 #include <exception>
 #include <iostream>
 void test_kinematics();
-void test_robot_control_runtime();
+void test_embedded_odometry_slew();
+void test_embedded_odometry_slew(); test_robot_control_runtime();
 void test_protocol_frame_codec();
 void test_parallel_controller_bank();
 void test_pid();
