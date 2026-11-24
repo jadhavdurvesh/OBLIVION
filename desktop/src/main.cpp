@@ -17,6 +17,13 @@
 #include <QStatusBar>
 #include <QStyle>
 #include <QTextEdit>
+#include <QTabWidget>
+#include <QTableWidget>
+#include <QHeaderView>
+#include <QPainter>
+#include <QAbstractItemView>
+#include <deque>
+#include <algorithm>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -25,6 +32,24 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+
+class SignalPlot final : public QWidget {
+public:
+ explicit SignalPlot(QWidget* p=nullptr):QWidget(p){setMinimumHeight(180);}
+ void append(double v){samples_.push_back(v);while(samples_.size()>240)samples_.pop_front();update();}
+protected:
+ void paintEvent(QPaintEvent*) override {
+  QPainter p(this);p.fillRect(rect(),QColor("#fbfbfc"));QRectF a=rect().adjusted(42,26,-12,-25);
+  p.setPen(QColor("#737985"));p.drawText(12,18,"RAW PAYLOAD BYTE TRACE");
+  p.setPen(QColor("#e4e6eb"));for(int i=0;i<=4;++i){qreal y=a.top()+a.height()*i/4.0;p.drawLine(QPointF(a.left(),y),QPointF(a.right(),y));}
+  if(samples_.size()<2){p.setPen(QColor("#888"));p.drawText(a,Qt::AlignCenter,"Waiting for incoming packet payloads");return;}
+  auto mm=std::minmax_element(samples_.begin(),samples_.end());double lo=*mm.first,hi=*mm.second;if(hi-lo<1){lo-=1;hi+=1;}
+  QPolygonF line;for(std::size_t i=0;i<samples_.size();++i){qreal x=a.left()+a.width()*i/(samples_.size()-1);qreal y=a.bottom()-(samples_[i]-lo)/(hi-lo)*a.height();line<<QPointF(x,y);}
+  p.setPen(QPen(QColor("#3478d4"),2));p.drawPolyline(line);
+  p.setPen(QColor("#737985"));p.drawText(QRectF(2,a.top(),36,16),Qt::AlignRight,QString::number(hi,'f',1));p.drawText(QRectF(2,a.bottom()-16,36,16),Qt::AlignRight,QString::number(lo,'f',1));
+ }
+private:std::deque<double> samples_;
+};
 
 class OblivionWindow final : public QMainWindow {
 public:
