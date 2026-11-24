@@ -52,6 +52,7 @@ if(OBLIVION_BUILD_TESTS)
     enable_testing()
     add_executable(oblivion_tests
         tests/test_main.cpp
+        tests/test_embedded_odometry_slew.cpp
         tests/test_parallel_controller_bank.cpp
         tests/test_protocol_frame_codec.cpp
         tests/test_robot_control_runtime.cpp
