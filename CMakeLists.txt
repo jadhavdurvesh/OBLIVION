@@ -16,6 +16,7 @@ add_library(oblivion_core
     src/control/embedded_controller_bank.cpp
     src/runtime/robot_control_runtime.cpp
     src/protocol/frame_codec.cpp
+    src/protocol/telemetry.cpp
     src/safety/motor_limiter.cpp
     src/safety/motor_slew_limiter.cpp
     src/localization/odometry.cpp
@@ -55,6 +56,7 @@ if(OBLIVION_BUILD_TESTS)
         tests/test_embedded_odometry_slew.cpp
         tests/test_parallel_controller_bank.cpp
         tests/test_protocol_frame_codec.cpp
+        tests/test_telemetry_codec.cpp
         tests/test_robot_control_runtime.cpp
         tests/test_kinematics.cpp
         tests/test_perception.cpp
