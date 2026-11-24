@@ -217,8 +217,8 @@ documented plant model before supervisor selection.
 - [x] Bounded raw packet inspector with timestamp, message type, sequence, payload length and hexadecimal bytes.
 - [x] Bounded raw payload-byte chart.
 - [x] Decoded/derived parameter table with explicit unavailable/provenance labels; no fabricated physical values.
-- [ ] Versioned typed telemetry schema for reflectance sensors, encoders, IMU, odometry, controller candidates, supervisor, execution timing, CPU/RAM, battery and faults.
-- [ ] Typed decoder, engineering-unit conversion, timestamp alignment and stale-data indicators.
+- [~] Versioned typed telemetry v1 schema and little-endian codec for reflectance, line estimate, encoders, IMU, motion, per-controller output/timing/status, CPU/free memory, battery and fault flags; matching target firmware publisher and hardware validation remain.
+- [~] Desktop typed decoder and engineering-unit conversion for telemetry v1; timestamp alignment, stale-data indicators and real firmware integration remain.
 - [ ] Per-signal selectable charts, zoom/pan, trigger/cursors and exportable raw traces.
 - [ ] Controller comparison and arbitration live view.
 - [ ] Resource, WCET, jitter, deadline and communication diagnostics from target firmware.
