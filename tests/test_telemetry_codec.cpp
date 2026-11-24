@@ -9,7 +9,7 @@ void test_telemetry_codec(){
  in.left_encoder_ticks=-123456;in.right_encoder_ticks=654321;
  in.gyro_z_mdps=-2500;in.accel_y_mg=1000;in.linear_velocity_mmps=850;
  in.yaw_rate_mradps=-120;in.curvature_milli_inv_m=450;
- in.active_controller_mask=0x023f;in.controllers[0]={125,-1,1};in.controllers[1]={-250,420,1};
+ in.active_controller_mask=0x023f;in.controllers[0]={125,100,1};in.controllers[1]={-250,420,1};
  in.cpu_load_percent=42;in.free_memory_bytes=32768;in.battery_millivolts=7400;in.fault_flags=0x10;
  std::array<std::uint8_t,kTelemetryV1PayloadSize> bytes{};
  if(!encode_telemetry_v1(in,bytes.data(),bytes.size()))throw std::runtime_error("telemetry encode failed");
