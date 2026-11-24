@@ -28,6 +28,9 @@ The first milestone establishes a portable C++17 foundation:
 - Calibrated reflectance perception with weighted line-position, width and confidence estimates.
 - Shared robot, sensor and actuator data types.
 - Controller interface and an advanced controller laboratory: PID, LQR runtime feedback, finite-horizon MPC prototype, sliding-mode control, ADRC prototype, backstepping feedback, adaptive PD, gain scheduling, fuzzy feedback and robust feedback prototype.
+- Parallel controller bank with persistent worker threads, common output-polarity normalization, deadline monitoring, candidate telemetry and disagreement rejection.
+- Sensor-to-motor control runtime joining reflectance perception, line-rate estimation, concurrent controller consensus and bounded differential motor requests; fails closed on stale/invalid frames, low battery, line loss, deadline misses and controller disagreement.
+- Versioned CRC-16 framed robot protocol codec for future serial/Wi-Fi transport integration.
 - Controller supervisor with explicit selection and fail-closed invalid-output handling.
 - Motor-command safety limiting.
 - Advanced controller laboratory: LQR, MPC, SMC, ADRC, backstepping, adaptive PD, gain scheduling, fuzzy feedback, robust feedback and H-infinity runtime realization.
@@ -98,7 +101,7 @@ We will not split the 1 kHz control loop across languages or add assembly/Rust m
 
 ## Development status
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) for staged milestones and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the system design.
+See [live control runtime notes](docs/LIVE_CONTROL_RUNTIME.md), [docs/ROADMAP.md](docs/ROADMAP.md) for staged milestones and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the system design.
 
 ## Contributions and permissions
 
