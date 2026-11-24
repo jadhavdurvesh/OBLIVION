@@ -26,8 +26,8 @@ jobs:
             artifact: OBLIVION-linux-x64
           - os: windows-2022
             artifact: OBLIVION-windows-x64
-          - os: macos-14
-            artifact: OBLIVION-macos-arm64
+          - os: macos-13
+            artifact: OBLIVION-macos-x64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -80,7 +80,8 @@ jobs:
           chmod +x package/OBLIVION/OBLIVION.sh
           chmod +x package/OBLIVION/oblivion_desktop
           mv package/OBLIVION/oblivion_desktop OBLIVION-linux-x64
-          tar -C package -czf OBLIVION-linux-x64-runtime.tar.gz OBLIVION
+          sudo apt-get install -y makeself
+          makeself package/OBLIVION OBLIVION-linux-x64.run "OBLIVION Desktop" ./OBLIVION.sh
       - name: Deploy Qt and package Windows
         if: runner.os == 'Windows'
         shell: pwsh
@@ -108,7 +109,7 @@ jobs:
           Name: "{autodesktop}\OBLIVION"; Filename: "{app}\oblivion_desktop.exe"
           '@ | Set-Content installer.iss
           iscc installer.iss
-          Move-Item Output/OBLIVION-Setup.exe OBLIVION-windows-x64.exe
+          Move-Item OBLIVION-Setup.exe OBLIVION-windows-x64.exe
       - name: Deploy Qt and package macOS
         if: runner.os == 'macOS'
         run: |
@@ -117,15 +118,15 @@ jobs:
           test -d "$APP"
           macdeployqt "$APP" -always-overwrite
           cp desktop/README.md "$APP/Contents/Resources/README-DESKTOP.txt"
-          hdiutil create -volname OBLIVION -srcfolder "$APP" -ov -format UDZO OBLIVION-macos-arm64.dmg
+          hdiutil create -volname OBLIVION -srcfolder "$APP" -ov -format UDZO OBLIVION-macos-x64.dmg
       - name: Upload platform package
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: |
-            OBLIVION-linux-x64.tar.gz
-            OBLIVION-windows-x64.zip
-            OBLIVION-macos-x64.zip
+            OBLIVION-linux-x64.run
+            OBLIVION-windows-x64.exe
+            OBLIVION-macos-x64.dmg
           if-no-files-found: ignore
           retention-days: 14
 
@@ -147,7 +148,8 @@ jobs:
           tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag_name != '' && inputs.tag_name || github.ref_name }}
           name: OBLIVION ${{ github.event_name == 'workflow_dispatch' && inputs.tag_name != '' && inputs.tag_name || github.ref_name }}
           generate_release_notes: true
+          fail_on_unmatched_files: false
           files: |
-            release-assets/OBLIVION-linux-x64.tar.gz
-            release-assets/OBLIVION-windows-x64.zip
-            release-assets/OBLIVION-macos-x64.zip
+            release-assets/OBLIVION-linux-x64.run
+            release-assets/OBLIVION-windows-x64.exe
+            release-assets/OBLIVION-macos-x64.dmg
