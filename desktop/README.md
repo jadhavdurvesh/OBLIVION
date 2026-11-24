@@ -35,3 +35,10 @@ The current receive path logs valid framed packet metadata; typed telemetry payl
 CONTROLLER ENSEMBLE NOTE
 
 The desktop selection is a multi-controller request, not a claim that the desktop independently runs real-time motor controllers. The embedded controller bank is responsible for executing the selected controllers, enforcing per-controller deadlines, validating outputs and applying the configured supervisor/arbitration policy. The desktop command payload now contains: action byte, mission profile byte (0=Sprint, 1=Explore), controller mask low byte, controller mask high byte. This is a protocol payload change from the earlier single-controller-index draft. Firmware must implement this exact payload before using the redesigned UI with a physical robot. Do not assume the robot is running every selected controller until firmware reports an acknowledged active-controller mask.
+
+
+## Live Monitor tab
+
+The desktop includes a Live Monitor tab with received-frame and byte counters, frames-per-second counter, invalid-frame count, a bounded 240-sample raw payload-byte plot, and a bounded 500-row raw packet inspector (timestamp, message type, sequence, payload length and hexadecimal payload). The decoded/derived parameter table explicitly marks fields as awaiting typed telemetry where the current protocol has no defined schema. It does not fabricate physical units or robot values.
+
+Current protocol limitation: the receive decoder currently recognizes framed packet metadata and displays payload bytes as raw values. It does not yet define typed sensor, IMU, encoder, controller timing, CPU/RAM, battery or scheduler telemetry. The Live Monitor therefore cannot display genuine converted engineering values until a versioned telemetry schema and matching firmware encoder are implemented. The current plot is a byte-value trace, not a calibrated physical signal plot. The chart and raw table update only when valid frames arrive; no robot link means no live samples.
