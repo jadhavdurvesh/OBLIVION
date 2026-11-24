@@ -13,9 +13,12 @@ add_library(oblivion_core
     src/control/advanced_controllers.cpp
     src/control/h_infinity_controller.cpp
     src/control/parallel_controller_bank.cpp
+    src/control/embedded_controller_bank.cpp
     src/runtime/robot_control_runtime.cpp
     src/protocol/frame_codec.cpp
     src/safety/motor_limiter.cpp
+    src/safety/motor_slew_limiter.cpp
+    src/localization/odometry.cpp
     src/simulation/rigid_body_3d.cpp
     src/simulation/differential_drive_plant.cpp
     src/simulation/track_simulator.cpp
@@ -71,5 +74,19 @@ if(OBLIVION_BUILD_TESTS)
         add_test(NAME oblivion_controller_benchmark COMMAND oblivion_controller_benchmark)
         add_test(NAME oblivion_3d_trace_export
                  COMMAND oblivion_3d_trace ${CMAKE_CURRENT_BINARY_DIR}/oblivion_3d_trace.json)
+    endif()
+endif()
+
+option(OBLIVION_BUILD_DESKTOP "Build the native Qt desktop control center when Qt 6 is available" ON)
+if(OBLIVION_BUILD_DESKTOP)
+    find_package(Qt6 QUIET COMPONENTS Widgets SerialPort)
+    if(Qt6_FOUND)
+        add_executable(oblivion_desktop desktop/src/main.cpp)
+        target_link_libraries(oblivion_desktop PRIVATE oblivion_core Qt6::Widgets Qt6::SerialPort)
+        target_compile_features(oblivion_desktop PRIVATE cxx_std_17)
+        set_target_properties(oblivion_desktop PROPERTIES WIN32_EXECUTABLE TRUE MACOSX_BUNDLE TRUE)
+        message(STATUS "OBLIVION native desktop control center enabled")
+    else()
+        message(STATUS "Qt 6 Widgets/SerialPort not found; native desktop target skipped")
     endif()
 endif()
