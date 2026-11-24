@@ -14,6 +14,7 @@ add_library(oblivion_core
     src/control/h_infinity_controller.cpp
     src/control/parallel_controller_bank.cpp
     src/runtime/robot_control_runtime.cpp
+    src/protocol/frame_codec.cpp
     src/safety/motor_limiter.cpp
     src/simulation/rigid_body_3d.cpp
     src/simulation/differential_drive_plant.cpp
