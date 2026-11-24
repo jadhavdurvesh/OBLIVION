@@ -8,7 +8,7 @@ struct ControlRuntimeConfig {
  double cruise_command{0.25};
  double minimum_battery_voltage{5.5};
  double maximum_sensor_age_seconds{0.020};
- double maximum_line_confidence{0.15};
+ double minimum_line_confidence{0.15};
  double maximum_steering{0.8};
 };
 struct RuntimeDiagnostics {
