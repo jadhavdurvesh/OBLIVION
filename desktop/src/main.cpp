@@ -1,6 +1,5 @@
 #include "oblivion/protocol/frame_codec.hpp"
 #include "oblivion/protocol/telemetry.hpp"
-#include "oblivion/simulation/autonomous_track_runner.hpp"
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
@@ -406,25 +405,6 @@ private:
         if(written!=static_cast<qint64>(bytes.size())){log("Transport write failed.");return;}
         const QString name=type==oblivion::protocol::MessageType::EmergencyStop?"EMERGENCY STOP":type==oblivion::protocol::MessageType::Heartbeat?"HEARTBEAT":type==oblivion::protocol::MessageType::Calibration?"CALIBRATION":action==1?"START REQUEST":action==2?"PAUSE REQUEST":"STOP REQUEST";
         log("TX "+name+" · seq "+QString::number(sequence_)+" · profile "+(sprint_->isChecked()?"Sprint":"Explore")+" · controller mask 0x"+QString::number(mask,16).toUpper());
-    }
-    void run_local_simulation() {
-        oblivion::TrackBuilder builder(0.012);
-        if(!builder.add_straight({0.0,0.0},{1.0,0.0})){log("Simulation setup failed: track generation.");return;}
-        oblivion::TrackRunnerConfig cfg{};
-        cfg.plant.maximum_wheel_speed_mps=1.5; cfg.plant.track_width_m=0.12; cfg.plant.wheel_radius_m=0.02;
-        cfg.motion.maximum_speed_mps=1.0; cfg.motion.maximum_wheel_speed_mps=1.5; cfg.motion.wheel_track_m=0.12;
-        cfg.simulated_sensors.sensor_count=8; cfg.perception.sensor_count=8;
-        cfg.perception.line_threshold=0.5; cfg.perception.minimum_total_strength=0.2; cfg.perception.line_is_dark=true;
-        for(std::size_t i=0;i<8;++i){const double p=(static_cast<double>(i)-3.5)*0.01;cfg.simulated_sensors.lateral_positions_m[i]=p;cfg.perception.positions_m[i]=p;cfg.perception.dark_level[i]=0.0;cfg.perception.light_level[i]=1.0;}
-        oblivion::AutonomousTrackRunner runner(cfg);
-        if(!runner.configuration_valid()){log("Simulation setup failed: invalid runner configuration.");return;}
-        const auto metrics=runner.run(builder.build(),{},0.005,6000);
-        if(!metrics.valid){log("Simulation failed or produced no valid run metrics.");QMessageBox::warning(this,"Simulation failed","The local track simulation did not produce valid metrics.");return;}
-        const QString report=QString("Completed: %1 · Time: %2 s · RMS error: %3 mm · Max error: %4 mm · Steps: %5")
-            .arg(metrics.completed?"yes":"no").arg(metrics.simulated_time_seconds,0,'f',3)
-            .arg(metrics.rms_cross_track_error_m*1000.0,0,'f',2).arg(metrics.maximum_cross_track_error_m*1000.0,0,'f',2)
-            .arg(static_cast<qulonglong>(metrics.steps));
-        log("LOCAL SIMULATION  "+report); QMessageBox::information(this,"OBLIVION simulation",report);
     }
     void read_serial() {
         receive_buffer_.append(serial_->isOpen()?serial_->readAll():tcp_->readAll());
