@@ -35,7 +35,7 @@ struct TelemetryV1 {
     std::uint16_t battery_millivolts{0};
     std::uint32_t fault_flags{0};
 };
-constexpr std::size_t kTelemetryV1PayloadSize=8+4+16+4+2+8+12+12+12+2+(kControllerSlots*5)+1+4+2+4;
+constexpr std::size_t kTelemetryV1PayloadSize=8+4+16+4+2+8+6+6+12+2+(kControllerSlots*5)+1+4+2+4;
 bool encode_telemetry_v1(const TelemetryV1& value,std::uint8_t* output,std::size_t capacity) noexcept;
 bool decode_telemetry_v1(const std::uint8_t* input,std::size_t size,TelemetryV1& value) noexcept;
 } // namespace oblivion::protocol
