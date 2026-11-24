@@ -15,6 +15,8 @@
 #include <QPushButton>
 #include <QSerialPort>
 #include <QSerialPortInfo>
+#include <QTcpSocket>
+#include <QLineEdit>
 #include <QStatusBar>
 #include <QStyle>
 #include <QTextEdit>
@@ -59,32 +61,32 @@ public:
         resize(1420, 900);
         setMinimumSize(1120, 760);
         setStyleSheet(R"QSS(
-            QMainWindow, QWidget#root { background:#f5f5f7; color:#202124; font-family:"Segoe UI"; font-size:13px; }
-            QLabel#eyebrow { color:#777b84; font-size:10px; font-weight:700; letter-spacing:2px; }
-            QLabel#brand { color:#17191d; font-size:27px; font-weight:800; letter-spacing:3px; }
-            QLabel#subtitle { color:#737780; font-size:12px; }
-            QFrame#surface { background:#ffffff; border:1px solid #e6e7eb; border-radius:14px; }
-            QLabel#sectionTitle { color:#24262b; font-size:14px; font-weight:700; }
-            QLabel#muted { color:#858993; font-size:11px; }
-            QLabel#metric { color:#1e2025; font-size:20px; font-weight:700; }
+            QMainWindow, QWidget#root { background:#090d14; color:#e8edf5; font-family:"Segoe UI"; font-size:13px; }
+            QLabel#eyebrow { color:#91a4bd; font-size:10px; font-weight:700; letter-spacing:2px; }
+            QLabel#brand { color:#f5f7fb; font-size:27px; font-weight:800; letter-spacing:3px; }
+            QLabel#subtitle { color:#9aabc0; font-size:12px; }
+            QFrame#surface { background:#111925; border:1px solid #243247; border-radius:16px; }
+            QLabel#sectionTitle { color:#e8edf5; font-size:14px; font-weight:700; }
+            QLabel#muted { color:#9aabc0; font-size:11px; }
+            QLabel#metric { color:#f5f7fb; font-size:20px; font-weight:700; }
             QLabel#statusConnected { color:#16865b; background:#e8f6ef; border:1px solid #ccebd9; border-radius:9px; padding:7px 12px; font-weight:700; }
             QLabel#statusDisconnected { color:#a66a16; background:#fff5e5; border:1px solid #f3dfb9; border-radius:9px; padding:7px 12px; font-weight:700; }
-            QPushButton { background:#f3f4f6; color:#25272c; border:1px solid #e0e2e7; border-radius:9px; padding:9px 14px; font-weight:600; }
-            QPushButton:hover { background:#e9ebef; }
-            QPushButton:disabled { color:#aeb1b8; background:#f6f6f7; }
-            QPushButton#primary { background:#202329; color:white; border:1px solid #202329; }
-            QPushButton#primary:hover { background:#363a43; }
-            QPushButton#danger { background:#fff0ef; color:#bd3434; border:1px solid #f2cecb; }
-            QPushButton#danger:hover { background:#ffe2df; }
-            QPushButton#profile { background:#f6f7f9; border:1px solid #e4e6eb; padding:13px 18px; text-align:left; }
-            QPushButton#profile:checked { background:#edf3ff; color:#2457a7; border:1px solid #9db9ed; }
-            QComboBox { background:#fff; border:1px solid #dfe1e6; border-radius:8px; padding:8px 10px; min-height:18px; }
+            QPushButton { background:#172235; color:#e5edf8; border:1px solid #2a3b54; border-radius:10px; padding:10px 15px; font-weight:600; }
+            QPushButton:hover { background:#22324a; border-color:#5276a5; }
+            QPushButton:disabled { color:#64748b; background:#111925; }
+            QPushButton#primary { background:#1c6b67; color:#ffffff; border:1px solid #2a9a91; }
+            QPushButton#primary:hover { background:#25857e; }
+            QPushButton#danger { background:#3a1b24; color:#ff9da8; border:1px solid #713342; }
+            QPushButton#danger:hover { background:#52232f; }
+            QPushButton#profile { background:#131e2c; color:#c7d4e5; border:1px solid #293b53; padding:16px 18px; text-align:left; }
+            QPushButton#profile:checked { background:#152f35; color:#83e5d9; border:1px solid #328b83; }
+            QComboBox, QLineEdit { background:#0c1420; color:#e5edf8; border:1px solid #2a3b54; border-radius:8px; padding:8px 10px; min-height:18px; }
             QComboBox::drop-down { border:0; width:24px; }
-            QCheckBox { color:#34363c; spacing:8px; padding:5px; }
+            QCheckBox { color:#dce6f3; spacing:8px; padding:5px; }
             QCheckBox::indicator { width:16px; height:16px; }
-            QTextEdit { background:#fbfbfc; border:1px solid #e7e8ec; border-radius:10px; padding:9px; color:#34363c; font-family:Consolas; font-size:11px; }
+            QTextEdit, QTableWidget { background:#0c1420; border:1px solid #26364c; border-radius:10px; padding:9px; color:#dce6f3; font-family:Consolas; font-size:11px; }
             QScrollArea { border:0; background:transparent; }
-            QStatusBar { background:#fff; color:#777b84; border-top:1px solid #e7e8ec; }
+            QStatusBar { background:#0b111b; color:#91a4bd; border-top:1px solid #243247; } QHeaderView::section { background:#172235; color:#9fb3cc; border:0; padding:7px; }
         )QSS");
 
         auto* root = new QWidget;
@@ -114,6 +116,9 @@ public:
         auto* connection = surface("ROBOT CONNECTION");
         auto* conn = new QHBoxLayout(connection);
         conn->setContentsMargins(16, 14, 16, 14);
+        transport_ = new QComboBox; transport_->addItems({"Physical robot · Serial","Standalone simulator · TCP"});
+        host_ = new QLineEdit("127.0.0.1"); host_->setMaximumWidth(150);
+        tcpPort_ = new QLineEdit("8765"); tcpPort_->setMaximumWidth(78);
         port_ = new QComboBox;
         port_->setMinimumWidth(320);
         refresh_ = new QPushButton("Refresh");
@@ -121,8 +126,10 @@ public:
         connect_->setObjectName("primary");
         disconnect_ = new QPushButton("Disconnect");
         disconnect_->setEnabled(false);
-        conn->addWidget(new QLabel("Serial interface"));
+        conn->addWidget(transport_);
         conn->addWidget(port_, 1);
+        conn->addWidget(host_);
+        conn->addWidget(tcpPort_);
         conn->addWidget(refresh_);
         conn->addWidget(connect_);
         conn->addWidget(disconnect_);
@@ -199,8 +206,7 @@ public:
         actionRow->addStretch();
         auto* calibrate = new QPushButton("Calibrate sensors");
         auto* heartbeat = new QPushButton("Heartbeat");
-        auto* simulate = new QPushButton("Run local simulation");
-        actionRow->addWidget(calibrate); actionRow->addWidget(heartbeat); actionRow->addWidget(simulate);
+        actionRow->addWidget(calibrate); actionRow->addWidget(heartbeat);
         outer->addLayout(actionRow);
 
         auto* lower = new QHBoxLayout;
@@ -263,6 +269,10 @@ public:
         setCentralWidget(tabs);
         statusBar()->showMessage("Ready · No robot connected");
         serial_ = std::make_unique<QSerialPort>();
+        tcp_ = std::make_unique<QTcpSocket>();
+        connect(tcp_.get(), &QTcpSocket::readyRead, this, [this]{ read_serial(); });
+        connect(transport_, &QComboBox::currentIndexChanged, this, [this](int mode){ const bool tcp=mode==1; port_->setVisible(!tcp); refresh_->setVisible(!tcp); host_->setVisible(tcp); tcpPort_->setVisible(tcp); });
+        host_->hide(); tcpPort_->hide();
         refresh_ports();
         connect(refresh_, &QPushButton::clicked, this, [this]{ refresh_ports(); });
         connect(connect_, &QPushButton::clicked, this, [this]{ open_port(); });
@@ -279,7 +289,7 @@ public:
         connect(estop_, &QPushButton::clicked, this, [this]{ send_action(oblivion::protocol::MessageType::EmergencyStop,0); });
         connect(calibrate, &QPushButton::clicked, this, [this]{ send_action(oblivion::protocol::MessageType::Calibration,0x10); });
         connect(heartbeat, &QPushButton::clicked, this, [this]{ send_action(oblivion::protocol::MessageType::Heartbeat,0); });
-        connect(simulate, &QPushButton::clicked, this, [this]{ run_local_simulation(); });
+
         connect(clear, &QPushButton::clicked, telemetry_, &QTextEdit::clear);
         connect(serial_.get(), &QSerialPort::readyRead, this, [this]{ read_serial(); });
         connect(serial_.get(), &QSerialPort::errorOccurred, this, [this](QSerialPort::SerialPortError e){ if(e!=QSerialPort::NoError) log("Serial error: "+serial_->errorString()); });
@@ -354,35 +364,46 @@ private:
         for(const auto& p:QSerialPortInfo::availablePorts()) port_->addItem(p.portName()+"  ·  "+p.description(),p.portName());
         const int i=port_->findData(previous); if(i>=0) port_->setCurrentIndex(i);
     }
+    bool connected() const { return serial_->isOpen() || (tcp_ && tcp_->state()==QAbstractSocket::ConnectedState); }
     void open_port() {
-        if(port_->currentData().toString().isEmpty()){QMessageBox::warning(this,"No serial interface","Connect the robot controller and select its serial interface.");return;}
-        serial_->setPortName(port_->currentData().toString()); serial_->setBaudRate(QSerialPort::Baud115200);
-        serial_->setDataBits(QSerialPort::Data8); serial_->setParity(QSerialPort::NoParity); serial_->setStopBits(QSerialPort::OneStop); serial_->setFlowControl(QSerialPort::NoFlowControl);
-        if(!serial_->open(QIODevice::ReadWrite)){QMessageBox::critical(this,"Connection failed",serial_->errorString());return;}
-        status_->setText("●  LINK OPEN"); status_->setObjectName("statusConnected"); status_->style()->unpolish(status_); status_->style()->polish(status_);
-        connect_->setEnabled(false); disconnect_->setEnabled(true); port_->setEnabled(false);
+        if(transport_->currentIndex()==1){
+            bool ok=false; const int p=tcpPort_->text().toInt(&ok);
+            if(!ok||p<1||p>65535){QMessageBox::warning(this,"Invalid endpoint","Enter a valid TCP port.");return;}
+            tcp_->connectToHost(host_->text().trimmed(),static_cast<quint16>(p));
+            if(!tcp_->waitForConnected(2500)){QMessageBox::critical(this,"Simulator connection failed",tcp_->errorString());return;}
+            log("Simulator TCP connected · "+host_->text()+":"+QString::number(p));
+        }else{
+            if(port_->currentData().toString().isEmpty()){QMessageBox::warning(this,"No serial interface","Connect the robot controller and select its serial interface.");return;}
+            serial_->setPortName(port_->currentData().toString()); serial_->setBaudRate(QSerialPort::Baud115200);
+            serial_->setDataBits(QSerialPort::Data8); serial_->setParity(QSerialPort::NoParity); serial_->setStopBits(QSerialPort::OneStop); serial_->setFlowControl(QSerialPort::NoFlowControl);
+            if(!serial_->open(QIODevice::ReadWrite)){QMessageBox::critical(this,"Connection failed",serial_->errorString());return;}
+            log("Physical serial link opened · "+serial_->portName());
+        }
+        status_->setText(transport_->currentIndex()==1?"●  SIMULATOR ONLINE":"●  ROBOT LINK OPEN");
+        status_->setObjectName("statusConnected"); status_->style()->unpolish(status_); status_->style()->polish(status_);
+        connect_->setEnabled(false); disconnect_->setEnabled(true); port_->setEnabled(false); transport_->setEnabled(false);
         pause_->setEnabled(true); stop_->setEnabled(true); estop_->setEnabled(true); update_controller_count();
-        statusBar()->showMessage("Serial link open · 115200 baud · Firmware identity not yet verified");
-        log("Serial link opened on "+serial_->portName()+" at 115200 baud.");
+        statusBar()->showMessage("Connected · protocol v1 · telemetry stream awaiting/active");
         send_action(oblivion::protocol::MessageType::Heartbeat,0);
     }
     void close_port() {
-        if(serial_->isOpen()) serial_->close();
+        if(serial_->isOpen()) serial_->close(); if(tcp_ && tcp_->state()!=QAbstractSocket::UnconnectedState) tcp_->disconnectFromHost();
+        if(tcp_ && tcp_->state()!=QAbstractSocket::UnconnectedState) tcp_->disconnectFromHost();
         status_->setText("●  OFFLINE"); status_->setObjectName("statusDisconnected"); status_->style()->unpolish(status_); status_->style()->polish(status_);
-        connect_->setEnabled(true); disconnect_->setEnabled(false); port_->setEnabled(true);
+        connect_->setEnabled(true); disconnect_->setEnabled(false); port_->setEnabled(true); transport_->setEnabled(true);
         pause_->setEnabled(false); stop_->setEnabled(false); estop_->setEnabled(false); update_controller_count();
-        statusBar()->showMessage("Disconnected · Firmware watchdog must independently stop the motors");
-        log("Serial link closed. Firmware watchdog must independently stop motors.");
+        statusBar()->showMessage("Disconnected · physical firmware watchdog remains responsible for motor safety");
+        log("Transport disconnected.");
     }
     void send_action(oblivion::protocol::MessageType type,std::uint8_t action) {
-        if(!serial_->isOpen()){log("Rejected: no robot connection.");return;}
+        if(!connected()){log("Rejected: no robot connection.");return;}
         const std::uint16_t mask=controller_mask();
         if(type==oblivion::protocol::MessageType::MotorCommand && action==1 && mask==0){log("Start rejected: select at least one controller.");return;}
         oblivion::protocol::Packet packet{}; packet.type=type; packet.sequence=++sequence_;
         packet.payload={action,static_cast<std::uint8_t>(sprint_->isChecked()?0:1),static_cast<std::uint8_t>(mask&0xffu),static_cast<std::uint8_t>((mask>>8u)&0xffu)};
         const auto bytes=oblivion::protocol::encode(packet);
-        const auto written=serial_->write(reinterpret_cast<const char*>(bytes.data()),static_cast<qint64>(bytes.size()));
-        if(written!=static_cast<qint64>(bytes.size())){log("Transport write failed: "+serial_->errorString());return;}
+        const auto written=serial_->isOpen()?serial_->write(reinterpret_cast<const char*>(bytes.data()),static_cast<qint64>(bytes.size())):tcp_->write(reinterpret_cast<const char*>(bytes.data()),static_cast<qint64>(bytes.size()));
+        if(written!=static_cast<qint64>(bytes.size())){log("Transport write failed.");return;}
         const QString name=type==oblivion::protocol::MessageType::EmergencyStop?"EMERGENCY STOP":type==oblivion::protocol::MessageType::Heartbeat?"HEARTBEAT":type==oblivion::protocol::MessageType::Calibration?"CALIBRATION":action==1?"START REQUEST":action==2?"PAUSE REQUEST":"STOP REQUEST";
         log("TX "+name+" · seq "+QString::number(sequence_)+" · profile "+(sprint_->isChecked()?"Sprint":"Explore")+" · controller mask 0x"+QString::number(mask,16).toUpper());
     }
@@ -406,7 +427,7 @@ private:
         log("LOCAL SIMULATION  "+report); QMessageBox::information(this,"OBLIVION simulation",report);
     }
     void read_serial() {
-        receive_buffer_.append(serial_->readAll());
+        receive_buffer_.append(serial_->isOpen()?serial_->readAll():tcp_->readAll());
         while(receive_buffer_.size()>=12) {
             const auto* data=reinterpret_cast<const std::uint8_t*>(receive_buffer_.constData());
             if(data[0]!=oblivion::protocol::kMagic0||data[1]!=oblivion::protocol::kMagic1){receive_buffer_.remove(0,1);continue;}
@@ -433,14 +454,14 @@ private:
             receive_buffer_.remove(0,frameSize);
         }
     }
-    QComboBox* port_{}; QLabel* status_{}; QLabel* selectedCount_{}; QTextEdit* telemetry_{};
+    QComboBox* port_{}; QComboBox* transport_{}; QLineEdit* host_{}; QLineEdit* tcpPort_{}; QLabel* status_{}; QLabel* selectedCount_{}; QTextEdit* telemetry_{};
     QPushButton* refresh_{}; QPushButton* connect_{}; QPushButton* disconnect_{}; QPushButton* sprint_{}; QPushButton* explore_{};
     QPushButton* start_{}; QPushButton* pause_{}; QPushButton* stop_{}; QPushButton* estop_{};
     std::vector<QCheckBox*> controllers_;
     QLabel *rxFrames_{},*rxBytes_{},*rxRate_{},*rxErrors_{};
     SignalPlot* plot_{};QTableWidget *rawTable_{},*decodedTable_{};
     QTimer rateTimer_;std::uint64_t frames_{0},bytes_{0},errors_{0},rate_{0};
-    std::unique_ptr<QSerialPort> serial_; QTimer refresh_timer_; QByteArray receive_buffer_; std::uint32_t sequence_{0};
+    std::unique_ptr<QSerialPort> serial_; std::unique_ptr<QTcpSocket> tcp_; QTimer refresh_timer_; QByteArray receive_buffer_; std::uint32_t sequence_{0};
 };
 
 int main(int argc,char** argv) {
