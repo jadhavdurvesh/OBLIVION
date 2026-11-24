@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <cstdint>
+#include <cstddef>
 namespace oblivion::protocol {
 constexpr std::uint8_t kTelemetrySchemaVersion=1;
 constexpr std::size_t kReflectanceChannels=8;
