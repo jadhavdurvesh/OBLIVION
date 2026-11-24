@@ -1,5 +1,6 @@
 #include "oblivion/protocol/telemetry.hpp"
 #include <cstddef>
+#include <type_traits>
 namespace oblivion::protocol {
 namespace {
 template<class T> void put(std::uint8_t*& p,T v) noexcept {
