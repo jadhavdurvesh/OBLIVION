@@ -6,7 +6,7 @@ namespace oblivion {
 ParallelControllerBank::ParallelControllerBank(std::vector<ControllerSlot> slots,ControllerBankConfig config):config_(config){
  if(slots.empty()||config_.deadline.count()<=0||config_.minimum_valid_controllers==0||config_.minimum_valid_controllers>slots.size()||!std::isfinite(config_.maximum_disagreement)||config_.maximum_disagreement<0.0)throw std::invalid_argument("invalid parallel controller bank configuration");
  workers_.reserve(slots.size());
- for(auto& slot:slots){if(slot.name.empty()||slot.controller==nullptr)throw std::invalid_argument("controller slot requires a name and controller");WorkerState state{};state.slot=std::move(slot);workers_.push_back(std::move(state));}
+ for(auto& slot:slots){if(slot.name.empty()||slot.controller==nullptr||!std::isfinite(slot.output_polarity)||std::abs(slot.output_polarity)!=1.0)throw std::invalid_argument("controller slot requires a name, controller and polarity of +1 or -1");WorkerState state{};state.slot=std::move(slot);workers_.push_back(std::move(state));}
  for(std::size_t i=0;i<workers_.size();++i)workers_[i].thread=std::thread(&ParallelControllerBank::worker_loop,this,i);
 }
 ParallelControllerBank::~ParallelControllerBank(){
@@ -19,7 +19,7 @@ void ParallelControllerBank::worker_loop(std::size_t index){
  for(;;){
   ControlInput input{};
   {std::unique_lock<std::mutex> lock(mutex_);start_cv_.wait(lock,[&]{return stopping_||generation_!=worker.observed_generation;});if(stopping_)return;worker.observed_generation=generation_;input=input_;}
-  const auto output=worker.slot.controller->update(input);
+  auto output=worker.slot.controller->update(input);if(output.valid)output.command*=worker.slot.output_polarity;
   {std::lock_guard<std::mutex> lock(mutex_);worker.output=output;if(remaining_>0)--remaining_;if(remaining_==0)done_cv_.notify_one();}
  }
 }
