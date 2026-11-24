@@ -9,7 +9,7 @@ OBLIVION is an embedded-first autonomous robotics intelligence platform. Its fir
 - **Sprint** — high-speed line tracking, predictive steering, trajectory and velocity optimization.
 - **Explore** — track discovery, graph mapping, route memory, dead-end handling and mission-aware navigation.
 
-The project is designed to grow into a reusable robotics platform. The initial 3D simulation workflow is documented in [simulator/README.md](simulator/README.md). It is not a dashboard and it is not a single PID sketch: the deliverable is the software that perceives sensor data, estimates robot state, plans actions and controls actuators on the robot.
+The project is designed to grow into a reusable robotics platform. The initial 3D simulation workflow is documented in [simulator/README.md](simulator/README.md). The interactive viewer is published at [OBLIVION 3D Simulation Lab](https://jadhavdurvesh.github.io/OBLIVION/). It is not a dashboard and it is not a single PID sketch: the deliverable is the software that perceives sensor data, estimates robot state, plans actions and controls actuators on the robot.
 
 ## Engineering principles
 
