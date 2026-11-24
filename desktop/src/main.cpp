@@ -53,7 +53,7 @@ public:
   connect(pause_,&QPushButton::clicked,this,[this]{send_action(oblivion::protocol::MessageType::MotorCommand,2);});
   connect(stop_,&QPushButton::clicked,this,[this]{send_action(oblivion::protocol::MessageType::MotorCommand,0);});
   connect(estop_,&QPushButton::clicked,this,[this]{send_action(oblivion::protocol::MessageType::EmergencyStop,0);});
-  connect(calibrate,&QPushButton::clicked,this,[this]{send_action(oblivion::protocol::MessageType::SensorFrame,0x10);});
+  connect(calibrate,&QPushButton::clicked,this,[this]{send_action(oblivion::protocol::MessageType::Calibration,0x10);});
   connect(heartbeat,&QPushButton::clicked,this,[this]{send_action(oblivion::protocol::MessageType::Heartbeat,0);});
   connect(clear,&QPushButton::clicked,telemetry_,&QTextEdit::clear);
   connect(serial_.get(),&QSerialPort::readyRead,this,[this]{read_serial();});
