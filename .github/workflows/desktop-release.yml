@@ -68,7 +68,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $exe = Resolve-Path "build-desktop/oblivion_desktop.exe"
+          $exe = Resolve-Path "build-desktop/Release/oblivion_desktop.exe"
           windeployqt --release --compiler-runtime --dir package $exe
           Copy-Item $exe package/
           Copy-Item desktop/README.md package/README-DESKTOP.txt
@@ -77,10 +77,11 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           mkdir -p package
-          cp build-desktop/oblivion_desktop package/
-          macdeployqt package/oblivion_desktop -always-overwrite || true
-          cp desktop/README.md package/README-DESKTOP.txt
-          ditto -c -k --sequesterRsrc --keepParent package OBLIVION-macos-arm64.zip
+          APP="build-desktop/oblivion_desktop.app"
+          test -d "$APP"
+          macdeployqt "$APP" -always-overwrite
+          cp desktop/README.md "$APP/Contents/Resources/README-DESKTOP.txt"
+          ditto -c -k --sequesterRsrc --keepParent "$APP" OBLIVION-macos-arm64.zip
       - name: Upload platform package
         uses: actions/upload-artifact@v4
         with:
