@@ -1,4 +1,5 @@
 #include "oblivion/protocol/frame_codec.hpp"
+#include "oblivion/protocol/telemetry.hpp"
 #include "oblivion/simulation/autonomous_track_runner.hpp"
 #include <QApplication>
 #include <QCheckBox>
@@ -294,6 +295,36 @@ public:
     ~OblivionWindow() override { if(serial_ && serial_->isOpen()) serial_->close(); }
 
 private:
+    void set_parameter(int row,const QString& value,const QString& source){
+        decodedTable_->item(row,1)->setText(value);decodedTable_->item(row,2)->setText(source);
+    }
+    void update_decoded_telemetry(const oblivion::protocol::TelemetryV1& t){
+        using namespace oblivion::protocol;
+        const auto has=[&](TelemetryValidity bit){return (t.validity&static_cast<std::uint32_t>(bit))!=0;};
+        if(has(ValidLineEstimate)){
+            set_parameter(0,QString::number(t.line_position_um/1000.0,'f',3)+" mm","Telemetry v1 · line estimate");
+            set_parameter(1,QString::number(t.line_confidence_permille/10.0,'f',1)+" %","Telemetry v1 · confidence");
+        }
+        if(has(ValidEncoders))set_parameter(2,QString::number(t.left_encoder_ticks)+" / "+QString::number(t.right_encoder_ticks),"Telemetry v1 · encoder ticks");
+        if(has(ValidMotion)){
+            set_parameter(3,QString::number(t.linear_velocity_mmps/1000.0,'f',3)+" m/s","Telemetry v1 · reported velocity");
+            set_parameter(4,QString::number(t.yaw_rate_mradps/1000.0,'f',3)+" rad/s","Telemetry v1 · reported yaw rate");
+            set_parameter(6,QString::number(t.curvature_milli_inv_m/1000.0,'f',4)+" 1/m","Telemetry v1 · reported curvature");
+        }
+        if(has(ValidImu)){
+            const QString a=QString("%1, %2, %3 m/s²").arg(t.accel_x_mg*9.80665/1000.0,0,'f',2).arg(t.accel_y_mg*9.80665/1000.0,0,'f',2).arg(t.accel_z_mg*9.80665/1000.0,0,'f',2);
+            set_parameter(5,a,"Telemetry v1 · accelerometer");
+        }
+        if(has(ValidControllerStats)){
+            QStringList active;for(std::size_t i=0;i<t.controllers.size();++i)if((t.active_controller_mask&(1u<<i))!=0)active<<QString("C%1: %2 / %3 µs").arg(i).arg(t.controllers[i].output_milli/1000.0,0,'f',3).arg(t.controllers[i].execution_time_us);
+            set_parameter(7,active.isEmpty()?"No active controller slots":active.join(" · "),"Telemetry v1 · controller candidates");
+            std::uint32_t maxUs=0;for(const auto& slot:t.controllers)if(slot.status==1)maxUs=std::max<std::uint32_t>(maxUs,slot.execution_time_us);
+            set_parameter(8,QString::number(maxUs)+" µs (max valid slot)","Telemetry v1 · controller timing");
+        }
+        if(has(ValidSystemHealth))set_parameter(9,QString::number(t.cpu_load_percent)+" % CPU · "+QString::number(t.free_memory_bytes)+" B free","Telemetry v1 · target-reported");
+        if(has(ValidPower))set_parameter(11,QString::number(t.battery_millivolts/1000.0,'f',3)+" V","Telemetry v1 · battery monitor");
+        set_parameter(10,"Fault flags: 0x"+QString::number(t.fault_flags,16).toUpper(),"Telemetry v1 · fault bitfield");
+    }
     QLabel* metricCard(QGridLayout* grid,int row,int col,const QString& title,const QString& value){
         auto* card=new QFrame;card->setObjectName("surface");auto* l=new QVBoxLayout(card);l->setContentsMargins(12,10,12,10);
         auto* t=new QLabel(title);t->setObjectName("eyebrow");auto* v=new QLabel(value);v->setObjectName("metric");l->addWidget(t);l->addWidget(v);grid->addWidget(card,row,col);return v;
@@ -384,6 +415,13 @@ private:
             oblivion::protocol::Packet packet{};
             if(oblivion::protocol::decode(data,static_cast<std::size_t>(frameSize),packet)){
                 ++frames_;bytes_+=static_cast<std::uint64_t>(frameSize);++rate_;
+                if(packet.type==oblivion::protocol::MessageType::Telemetry){
+                    oblivion::protocol::TelemetryV1 t{};
+                    if(oblivion::protocol::decode_telemetry_v1(packet.payload.data(),packet.payload.size(),t)){
+                        update_decoded_telemetry(t);
+                        log("Typed telemetry v1 decoded.");
+                    }else log("Telemetry frame rejected: schema length or field validation failed.");
+                }
                 QString hex;for(auto b:packet.payload){if(!hex.isEmpty())hex+=" ";hex+=QString("%1").arg(b,2,16,QChar('0')).toUpper();plot_->append(b);}
                 int n=rawTable_->rowCount();rawTable_->insertRow(n);
                 QStringList vals={QDateTime::currentDateTime().toString("HH:mm:ss.zzz"),QString::number(static_cast<int>(packet.type)),QString::number(packet.sequence),QString::number(packet.payload.size()),hex};
