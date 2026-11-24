@@ -230,7 +230,36 @@ public:
         lower->addWidget(safetyCard, 1);
         outer->addLayout(lower, 1);
 
-        setCentralWidget(root);
+        auto* tabs = new QTabWidget;
+        tabs->setDocumentMode(true);
+        tabs->addTab(root,"Control Center");
+        auto* monitor=new QWidget;
+        auto* ml=new QVBoxLayout(monitor);
+        ml->setContentsMargins(22,18,22,18);ml->setSpacing(12);
+        auto* heading=new QLabel("LIVE SYSTEM MONITOR");heading->setObjectName("brand");ml->addWidget(heading);
+        auto* cards=new QGridLayout;
+        rxFrames_=metricCard(cards,0,0,"RECEIVED FRAMES","0");
+        rxBytes_=metricCard(cards,0,1,"RECEIVED BYTES","0 B");
+        rxRate_=metricCard(cards,0,2,"FRAME RATE","0 /s");
+        rxErrors_=metricCard(cards,0,3,"INVALID FRAMES","0");
+        ml->addLayout(cards);
+        auto* plotCard=surface("RAW SIGNAL TRACE");auto* pl=new QVBoxLayout(plotCard);
+        plot_=new SignalPlot;pl->addWidget(plot_);ml->addWidget(plotCard,1);
+        auto* tables=new QHBoxLayout;
+        auto* rawCard=surface("RAW PACKET INSPECTOR");auto* rl=new QVBoxLayout(rawCard);
+        rawTable_=new QTableWidget(0,5);rawTable_->setHorizontalHeaderLabels({"Time","Type","Sequence","Length","Payload HEX"});
+        rawTable_->horizontalHeader()->setSectionResizeMode(4,QHeaderView::Stretch);
+        rawTable_->setEditTriggers(QAbstractItemView::NoEditTriggers);rawTable_->verticalHeader()->hide();rl->addWidget(rawTable_);
+        tables->addWidget(rawCard,3);
+        auto* decodedCard=surface("DECODED / DERIVED PARAMETERS");auto* dl=new QVBoxLayout(decodedCard);
+        decodedTable_=new QTableWidget(0,3);decodedTable_->setHorizontalHeaderLabels({"Parameter","Value","Source"});
+        decodedTable_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);decodedTable_->verticalHeader()->hide();
+        decodedTable_->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        const QStringList rows={"Line position|—|Awaiting typed sensor telemetry","Line confidence|—|Awaiting typed sensor telemetry","Encoder counts|—|Awaiting encoder telemetry","Linear velocity|—|Derived after encoder decode","Yaw rate|—|Awaiting IMU telemetry","Acceleration|—|Awaiting IMU telemetry","Curvature|—|Derived after state decode","Controller outputs|—|Awaiting controller telemetry","Execution time|—|Awaiting runtime telemetry","CPU / RAM|—|Not reported by current protocol","Deadline misses|—|Awaiting scheduler telemetry","Battery voltage|—|Awaiting power telemetry"};
+        for(const auto& row:rows){const auto fields=row.split("|");int n=decodedTable_->rowCount();decodedTable_->insertRow(n);for(int j=0;j<3;++j)decodedTable_->setItem(n,j,new QTableWidgetItem(fields[j]));}
+        dl->addWidget(decodedTable_);tables->addWidget(decodedCard,2);ml->addLayout(tables,1);
+        tabs->addTab(monitor,"Live Monitor");
+        setCentralWidget(tabs);
         statusBar()->showMessage("Ready · No robot connected");
         serial_ = std::make_unique<QSerialPort>();
         refresh_ports();
@@ -257,11 +286,18 @@ public:
         connect(&refresh_timer_, &QTimer::timeout, this, [this]{ if(!serial_->isOpen()) refresh_ports(); });
         refresh_timer_.start();
         update_controller_count();
+        rateTimer_.setInterval(1000);
+        connect(&rateTimer_,&QTimer::timeout,this,[this]{rxRate_->setText(QString::number(rate_)+" /s");rate_=0;});
+        rateTimer_.start();
     }
 
     ~OblivionWindow() override { if(serial_ && serial_->isOpen()) serial_->close(); }
 
 private:
+    QLabel* metricCard(QGridLayout* grid,int row,int col,const QString& title,const QString& value){
+        auto* card=new QFrame;card->setObjectName("surface");auto* l=new QVBoxLayout(card);l->setContentsMargins(12,10,12,10);
+        auto* t=new QLabel(title);t->setObjectName("eyebrow");auto* v=new QLabel(value);v->setObjectName("metric");l->addWidget(t);l->addWidget(v);grid->addWidget(card,row,col);return v;
+    }
     QFrame* surface(const QString& title) {
         auto* frame = new QFrame;
         frame->setObjectName("surface");
@@ -346,9 +382,16 @@ private:
             const int payload=static_cast<int>(data[8])|(static_cast<int>(data[9])<<8); const int frameSize=12+payload;
             if(payload>512){receive_buffer_.remove(0,1);continue;} if(receive_buffer_.size()<frameSize)break;
             oblivion::protocol::Packet packet{};
-            if(oblivion::protocol::decode(data,static_cast<std::size_t>(frameSize),packet))
+            if(oblivion::protocol::decode(data,static_cast<std::size_t>(frameSize),packet)){
+                ++frames_;bytes_+=static_cast<std::uint64_t>(frameSize);++rate_;
+                QString hex;for(auto b:packet.payload){if(!hex.isEmpty())hex+=" ";hex+=QString("%1").arg(b,2,16,QChar('0')).toUpper();plot_->append(b);}
+                int n=rawTable_->rowCount();rawTable_->insertRow(n);
+                QStringList vals={QDateTime::currentDateTime().toString("HH:mm:ss.zzz"),QString::number(static_cast<int>(packet.type)),QString::number(packet.sequence),QString::number(packet.payload.size()),hex};
+                for(int j=0;j<5;++j)rawTable_->setItem(n,j,new QTableWidgetItem(vals[j]));
+                while(rawTable_->rowCount()>500)rawTable_->removeRow(0);
+                rxFrames_->setText(QString::number(frames_));rxBytes_->setText(QString::number(bytes_)+" B");
                 log("RX frame type "+QString::number(static_cast<int>(packet.type))+" · seq "+QString::number(packet.sequence)+" · "+QString::number(packet.payload.size())+" bytes");
-            else log("RX invalid frame rejected (CRC/version/length).");
+            }else{++errors_;rxErrors_->setText(QString::number(errors_));log("RX invalid frame rejected (CRC/version/length).");}
             receive_buffer_.remove(0,frameSize);
         }
     }
@@ -356,6 +399,9 @@ private:
     QPushButton* refresh_{}; QPushButton* connect_{}; QPushButton* disconnect_{}; QPushButton* sprint_{}; QPushButton* explore_{};
     QPushButton* start_{}; QPushButton* pause_{}; QPushButton* stop_{}; QPushButton* estop_{};
     std::vector<QCheckBox*> controllers_;
+    QLabel *rxFrames_{},*rxBytes_{},*rxRate_{},*rxErrors_{};
+    SignalPlot* plot_{};QTableWidget *rawTable_{},*decodedTable_{};
+    QTimer rateTimer_;std::uint64_t frames_{0},bytes_{0},errors_{0},rate_{0};
     std::unique_ptr<QSerialPort> serial_; QTimer refresh_timer_; QByteArray receive_buffer_; std::uint32_t sequence_{0};
 };
 
