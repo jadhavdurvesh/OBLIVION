@@ -41,13 +41,13 @@ public:
  void append(double v){samples_.push_back(v);while(samples_.size()>240)samples_.pop_front();update();}
 protected:
  void paintEvent(QPaintEvent*) override {
-  QPainter p(this);p.fillRect(rect(),QColor("#fbfbfc"));QRectF a=rect().adjusted(42,26,-12,-25);
-  p.setPen(QColor("#737985"));p.drawText(12,18,"RAW PAYLOAD BYTE TRACE");
-  p.setPen(QColor("#e4e6eb"));for(int i=0;i<=4;++i){qreal y=a.top()+a.height()*i/4.0;p.drawLine(QPointF(a.left(),y),QPointF(a.right(),y));}
-  if(samples_.size()<2){p.setPen(QColor("#888"));p.drawText(a,Qt::AlignCenter,"Waiting for incoming packet payloads");return;}
+  QPainter p(this);p.fillRect(rect(),QColor("#0c1420"));QRectF a=rect().adjusted(42,26,-12,-25);
+  p.setPen(QColor("#91a4bd"));p.drawText(12,18,"RAW PAYLOAD BYTE TRACE");
+  p.setPen(QColor("#26364c"));for(int i=0;i<=4;++i){qreal y=a.top()+a.height()*i/4.0;p.drawLine(QPointF(a.left(),y),QPointF(a.right(),y));}
+  if(samples_.size()<2){p.setPen(QColor("#91a4bd"));p.drawText(a,Qt::AlignCenter,"Waiting for incoming packet payloads");return;}
   auto mm=std::minmax_element(samples_.begin(),samples_.end());double lo=*mm.first,hi=*mm.second;if(hi-lo<1){lo-=1;hi+=1;}
   QPolygonF line;for(std::size_t i=0;i<samples_.size();++i){qreal x=a.left()+a.width()*i/(samples_.size()-1);qreal y=a.bottom()-(samples_[i]-lo)/(hi-lo)*a.height();line<<QPointF(x,y);}
-  p.setPen(QPen(QColor("#3478d4"),2));p.drawPolyline(line);
+  p.setPen(QPen(QColor("#62d6c8"),2));p.drawPolyline(line);
   p.setPen(QColor("#737985"));p.drawText(QRectF(2,a.top(),36,16),Qt::AlignRight,QString::number(hi,'f',1));p.drawText(QRectF(2,a.bottom()-16,36,16),Qt::AlignRight,QString::number(lo,'f',1));
  }
 private:std::deque<double> samples_;
@@ -270,7 +270,7 @@ public:
         serial_ = std::make_unique<QSerialPort>();
         tcp_ = std::make_unique<QTcpSocket>();
         connect(tcp_.get(), &QTcpSocket::readyRead, this, [this]{ read_serial(); });
-        connect(transport_, &QComboBox::currentIndexChanged, this, [this](int mode){ const bool tcp=mode==1; port_->setVisible(!tcp); refresh_->setVisible(!tcp); host_->setVisible(tcp); tcpPort_->setVisible(tcp); });
+        connect(transport_, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int mode){ const bool tcp=mode==1; port_->setVisible(!tcp); refresh_->setVisible(!tcp); host_->setVisible(tcp); tcpPort_->setVisible(tcp); });
         host_->hide(); tcpPort_->hide();
         refresh_ports();
         connect(refresh_, &QPushButton::clicked, this, [this]{ refresh_ports(); });
@@ -301,7 +301,7 @@ public:
         rateTimer_.start();
     }
 
-    ~OblivionWindow() override { if(serial_ && serial_->isOpen()) serial_->close(); }
+    ~OblivionWindow() override { if(serial_ && serial_->isOpen()) serial_->close(); if(tcp_ && tcp_->state()!=QAbstractSocket::UnconnectedState) tcp_->abort(); }
 
 private:
     void set_parameter(int row,const QString& value,const QString& source){
