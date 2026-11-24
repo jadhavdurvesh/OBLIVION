@@ -1,4 +1,6 @@
 #include "oblivion/protocol/frame_codec.hpp"
+#include "oblivion/simulation/autonomous_track_runner.hpp"
+#include <array>
 #include <QApplication>
 #include <QComboBox>
 #include <QDateTime>
@@ -39,8 +41,8 @@ public:
   auto* telemetryBox=new QGroupBox("Live telemetry");auto* telemetryLayout=new QVBoxLayout(telemetryBox);
   telemetry_=new QTextEdit;telemetry_->setReadOnly(true);telemetry_->setPlaceholderText("Robot telemetry will appear here when the firmware publishes supported telemetry frames.");telemetryLayout->addWidget(telemetry_);
   auto* actionsBox=new QGroupBox("System actions");auto* actionsLayout=new QVBoxLayout(actionsBox);
-  auto* calibrate=new QPushButton("Request sensor calibration");auto* heartbeat=new QPushButton("Send heartbeat");auto* clear=new QPushButton("Clear event log");
-  actionsLayout->addWidget(calibrate);actionsLayout->addWidget(heartbeat);actionsLayout->addWidget(clear);actionsLayout->addStretch();
+  auto* calibrate=new QPushButton("Request sensor calibration");auto* heartbeat=new QPushButton("Send heartbeat");auto* simulate=new QPushButton("Run local track simulation");auto* clear=new QPushButton("Clear event log");
+  actionsLayout->addWidget(simulate);actionsLayout->addWidget(calibrate);actionsLayout->addWidget(heartbeat);actionsLayout->addWidget(clear);actionsLayout->addStretch();
   auto* safety=new QLabel("Safety interlock\\n\\n• Emergency stop sends a dedicated protocol frame.\\n• Disconnect does not guarantee motor shutdown.\\n• Firmware must enforce watchdog and motor-off defaults.\\n• Do not test with wheels on the ground until hardware safety is verified.");
   safety->setWordWrap(true);safety->setStyleSheet("background:#34231e;color:#f2d4c9;padding:14px;border-radius:8px");actionsLayout->addWidget(safety);
   grid->addWidget(telemetryBox,3);grid->addWidget(actionsBox,1);outer->addLayout(grid,1);
@@ -55,6 +57,7 @@ public:
   connect(estop_,&QPushButton::clicked,this,[this]{send_action(oblivion::protocol::MessageType::EmergencyStop,0);});
   connect(calibrate,&QPushButton::clicked,this,[this]{send_action(oblivion::protocol::MessageType::Calibration,0x10);});
   connect(heartbeat,&QPushButton::clicked,this,[this]{send_action(oblivion::protocol::MessageType::Heartbeat,0);});
+  connect(simulate,&QPushButton::clicked,this,[this]{run_local_simulation();});
   connect(clear,&QPushButton::clicked,telemetry_,&QTextEdit::clear);
   connect(serial_.get(),&QSerialPort::readyRead,this,[this]{read_serial();});
   connect(serial_.get(),&QSerialPort::errorOccurred,this,[this](QSerialPort::SerialPortError e){if(e!=QSerialPort::NoError)log("Serial error: "+serial_->errorString());});
@@ -80,6 +83,25 @@ private:
   if(written!=static_cast<qint64>(bytes.size())){log("Transport write failed: "+serial_->errorString());return;}
   const QString name=type==oblivion::protocol::MessageType::EmergencyStop?"EMERGENCY STOP":type==oblivion::protocol::MessageType::Heartbeat?"HEARTBEAT":type==oblivion::protocol::MessageType::SensorFrame?"CALIBRATION REQUEST":action==1?"START":action==2?"PAUSE":"STOP";
   log("TX "+name+" | seq="+QString::number(sequence_)+" | profile="+mode_->currentText()+" | controller="+controller_->currentText());
+ }
+ void run_local_simulation(){
+  oblivion::TrackBuilder builder(0.012);
+  if(!builder.add_straight({0.0,0.0},{1.0,0.0})){log("Simulation setup failed: track generation.");return;}
+  oblivion::TrackRunnerConfig cfg{};
+  cfg.plant.maximum_wheel_speed_mps=1.5;cfg.plant.track_width_m=0.12;cfg.plant.wheel_radius_m=0.02;
+  cfg.motion.maximum_speed_mps=1.0;cfg.motion.maximum_wheel_speed_mps=1.5;cfg.motion.wheel_track_m=0.12;
+  cfg.simulated_sensors.sensor_count=8;cfg.perception.sensor_count=8;
+  cfg.perception.line_threshold=0.5;cfg.perception.minimum_total_strength=0.2;cfg.perception.line_is_dark=true;
+  for(std::size_t i=0;i<8;++i){const double position=(static_cast<double>(i)-3.5)*0.01;cfg.simulated_sensors.lateral_positions_m[i]=position;cfg.perception.positions_m[i]=position;cfg.perception.dark_level[i]=0.0;cfg.perception.light_level[i]=1.0;}
+  oblivion::AutonomousTrackRunner runner(cfg);
+  if(!runner.configuration_valid()){log("Simulation setup failed: invalid runner configuration.");return;}
+  const auto metrics=runner.run(builder.build(),{},0.005,6000);
+  if(!metrics.valid){log("Simulation failed or produced no valid run metrics.");QMessageBox::warning(this,"Simulation failed","The local track simulation did not produce valid metrics. Check the simulation configuration and logs.");return;}
+  const QString report=QString("Completed: %1 | Simulated time: %2 s | RMS line error: %3 mm | Max error: %4 mm | Steps: %5")
+   .arg(metrics.completed?"yes":"no").arg(metrics.simulated_time_seconds,0,'f',3)
+   .arg(metrics.rms_cross_track_error_m*1000.0,0,'f',2).arg(metrics.maximum_cross_track_error_m*1000.0,0,'f',2).arg(static_cast<qulonglong>(metrics.steps));
+  log("LOCAL SIMULATION: "+report);
+  QMessageBox::information(this,"OBLIVION simulation",report);
  }
  void read_serial(){
   receive_buffer_.append(serial_->readAll());
