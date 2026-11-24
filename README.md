@@ -79,6 +79,12 @@ ctest --test-dir build --output-on-failure
 
 On Windows, the demos may be located under `build/Release/`, depending on the generator. The controller benchmark prints CSV-style run metrics for repeatable comparisons.
 
+## Native desktop control center
+
+A native Qt 6 desktop control application is available in `desktop/`. It provides serial-port connection, Sprint/Explore selection, controller selection, Start/Pause/Stop/Emergency Stop, calibration and heartbeat actions, plus framed receive/error logging. Build it with `-DOBLIVION_BUILD_DESKTOP=ON` when Qt 6 Widgets and SerialPort are installed. See [desktop build and protocol notes](desktop/README.md). The desktop sends protocol requests; matching robot firmware and acknowledged telemetry are still required before these controls can operate a physical robot.
+
+The embedded-oriented core now also includes a fixed-memory sequential controller bank, differential-drive encoder/gyro odometry and motor slew-rate limiting. These are foundational modules, not a complete MCU port.
+
 ## Language strategy
 
 OBLIVION is intentionally polyglot only where justified:
