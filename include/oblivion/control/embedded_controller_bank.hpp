@@ -1,6 +1,7 @@
 #pragma once
 #include "oblivion/control/controller.hpp"
 #include <array>
+#include <cstdint>
 #include <cstddef>
 namespace oblivion {
 constexpr std::size_t kMaxEmbeddedControllers=12;
