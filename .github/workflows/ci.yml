@@ -54,3 +54,9 @@ jobs:
         run: cmake -S . -B build-desktop -DCMAKE_BUILD_TYPE=Release -DOBLIVION_BUILD_DESKTOP=ON -DOBLIVION_BUILD_TESTS=OFF -DOBLIVION_BUILD_EXAMPLES=OFF
       - name: Build native desktop
         run: cmake --build build-desktop --config Release --parallel
+      - name: Upload Linux desktop executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: OBLIVION-desktop-linux
+          path: build-desktop/oblivion_desktop
+          if-no-files-found: error
