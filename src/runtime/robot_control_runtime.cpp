@@ -11,7 +11,7 @@ RobotControlRuntime::RobotControlRuntime(ReflectanceProcessor p,ParallelControll
  !std::isfinite(cfg.cruise_command)||cfg.cruise_command<0||cfg.cruise_command>1||
  !std::isfinite(cfg.minimum_battery_voltage)||cfg.minimum_battery_voltage<0||
  !std::isfinite(cfg.maximum_sensor_age_seconds)||cfg.maximum_sensor_age_seconds<=0||
- !std::isfinite(cfg.minimum_line_confidence)||cfg.maximum_line_confidence<0||cfg.maximum_line_confidence>1||
+ !std::isfinite(cfg.minimum_line_confidence)||cfg.minimum_line_confidence<0||cfg.minimum_line_confidence>1||
  !std::isfinite(cfg.maximum_steering)||cfg.maximum_steering<=0||cfg.maximum_steering>1)
  throw std::invalid_argument("invalid robot control runtime configuration");
 }
@@ -26,7 +26,7 @@ MotorCommand RobotControlRuntime::process(const SensorFrame& frame,std::uint64_t
  diagnostics_.frame_valid=true;diagnostics_.battery_valid=true;
  diagnostics_.line=perception_.process(frame.reflectance,frame.reflectance_count,frame.timestamp_us);
  diagnostics_.line_valid=diagnostics_.line.input_valid&&diagnostics_.line.detected&&
- diagnostics_.line.confidence>=config_.maximum_line_confidence;
+ diagnostics_.line.confidence>=config_.minimum_line_confidence;
  if(!diagnostics_.line_valid)return {};
  if(!initialized_){
   previous_timestamp_us_=frame.timestamp_us;previous_line_position_m_=diagnostics_.line.position_m;
