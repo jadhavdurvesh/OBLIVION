@@ -78,8 +78,6 @@ jobs:
           exec "$HERE/oblivion_desktop" "$@"
           EOF
           chmod +x package/OBLIVION/OBLIVION.sh
-          chmod +x package/OBLIVION/oblivion_desktop
-          mv package/OBLIVION/oblivion_desktop OBLIVION-linux-x64
           sudo apt-get install -y makeself
           makeself package/OBLIVION OBLIVION-linux-x64.run "OBLIVION Desktop" ./OBLIVION.sh
       - name: Deploy Qt and package Windows
@@ -98,6 +96,7 @@ jobs:
           AppVersion=0.2.1
           DefaultDirName={autopf}\OBLIVION
           DefaultGroupName=OBLIVION
+          OutputDir=.
           OutputBaseFilename=OBLIVION-Setup
           Compression=lzma2
           SolidCompression=yes
