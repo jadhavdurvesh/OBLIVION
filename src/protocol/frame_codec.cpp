@@ -24,7 +24,7 @@ bool decode(const std::uint8_t*b,std::size_t size,Packet&p)noexcept{
  if(n>max_payload||size!=header_size+n+2)return false;
  const auto expected=static_cast<std::uint16_t>(b[size-2])|static_cast<std::uint16_t>(b[size-1]<<8U);
  if(crc16_ccitt(b,size-2)!=expected)return false;
- if(b[3]<static_cast<std::uint8_t>(MessageType::SensorFrame)||b[3]>static_cast<std::uint8_t>(MessageType::EmergencyStop))return false;
+ if(b[3]<static_cast<std::uint8_t>(MessageType::SensorFrame)||b[3]>static_cast<std::uint8_t>(MessageType::Calibration))return false;
  Packet candidate{};candidate.type=static_cast<MessageType>(b[3]);
  for(unsigned i=0;i<4;++i)candidate.sequence|=static_cast<std::uint32_t>(b[4+i])<<(8U*i);
  candidate.payload.assign(b+header_size,b+header_size+n);p=std::move(candidate);return true;
