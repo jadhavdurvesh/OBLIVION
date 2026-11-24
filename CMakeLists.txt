@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
-project(OBLIVION VERSION 0.1.0 LANGUAGES CXX)
+project(OBLIVION VERSION 0.2.0 LANGUAGES CXX)
+
+find_package(Threads REQUIRED)
 
 option(OBLIVION_BUILD_TESTS "Build OBLIVION unit tests" ON)
 option(OBLIVION_BUILD_EXAMPLES "Build OBLIVION examples" ON)
@@ -10,6 +12,8 @@ add_library(oblivion_core
     src/control/pid_controller.cpp
     src/control/advanced_controllers.cpp
     src/control/h_infinity_controller.cpp
+    src/control/parallel_controller_bank.cpp
+    src/runtime/robot_control_runtime.cpp
     src/safety/motor_limiter.cpp
     src/simulation/rigid_body_3d.cpp
     src/simulation/differential_drive_plant.cpp
@@ -19,6 +23,7 @@ add_library(oblivion_core
     src/motion/planner.cpp
 )
 target_include_directories(oblivion_core PUBLIC include)
+target_link_libraries(oblivion_core PUBLIC Threads::Threads)
 target_compile_features(oblivion_core PUBLIC cxx_std_17)
 set_target_properties(oblivion_core PROPERTIES CXX_EXTENSIONS OFF)
 
