@@ -1,7 +1,8 @@
 #include "oblivion/protocol/frame_codec.hpp"
 #include <limits>
+#include <utility>
 namespace oblivion::protocol {
-namespace {constexpr std::size_t header_size=12;constexpr std::size_t max_payload=512;}
+namespace {constexpr std::size_t header_size=10;constexpr std::size_t max_payload=512;}
 std::uint16_t crc16_ccitt(const std::uint8_t* data,std::size_t size)noexcept{
  std::uint16_t crc=0xffff;
  for(std::size_t i=0;i<size;++i){crc^=static_cast<std::uint16_t>(data[i])<<8U;for(int bit=0;bit<8;++bit)crc=(crc&0x8000U)?static_cast<std::uint16_t>((crc<<1U)^0x1021U):static_cast<std::uint16_t>(crc<<1U);}
