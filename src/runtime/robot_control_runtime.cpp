@@ -3,6 +3,7 @@
 #include <cmath>
 #include <limits>
 #include <stdexcept>
+#include <utility>
 namespace oblivion {
 RobotControlRuntime::RobotControlRuntime(ReflectanceProcessor p,ParallelControllerBank& c,MotorLimiter l,ControlRuntimeConfig cfg)
  :perception_(std::move(p)),controllers_(c),limiter_(l),config_(cfg){
@@ -10,7 +11,7 @@ RobotControlRuntime::RobotControlRuntime(ReflectanceProcessor p,ParallelControll
  !std::isfinite(cfg.cruise_command)||cfg.cruise_command<0||cfg.cruise_command>1||
  !std::isfinite(cfg.minimum_battery_voltage)||cfg.minimum_battery_voltage<0||
  !std::isfinite(cfg.maximum_sensor_age_seconds)||cfg.maximum_sensor_age_seconds<=0||
- !std::isfinite(cfg.maximum_line_confidence)||cfg.maximum_line_confidence<0||cfg.maximum_line_confidence>1||
+ !std::isfinite(cfg.minimum_line_confidence)||cfg.maximum_line_confidence<0||cfg.maximum_line_confidence>1||
  !std::isfinite(cfg.maximum_steering)||cfg.maximum_steering<=0||cfg.maximum_steering>1)
  throw std::invalid_argument("invalid robot control runtime configuration");
 }
