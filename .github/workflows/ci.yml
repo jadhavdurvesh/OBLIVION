@@ -60,3 +60,15 @@ jobs:
           name: OBLIVION-desktop-linux
           path: build-desktop/oblivion_desktop
           if-no-files-found: error
+
+
+  simulator-protocol:
+    name: Standalone simulator protocol
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python syntax
+        run: python -m py_compile simulator/oblivion_simulator.py simulator/test_protocol.py
+      - name: Test protocol and telemetry payload
+        working-directory: simulator
+        run: python -m unittest -v test_protocol.py
