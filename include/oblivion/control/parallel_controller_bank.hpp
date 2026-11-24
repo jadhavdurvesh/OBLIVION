@@ -8,7 +8,7 @@
 #include <thread>
 #include <vector>
 namespace oblivion {
-struct ControllerSlot { std::string name; IController* controller{nullptr}; };
+struct ControllerSlot { std::string name; IController* controller{nullptr}; double output_polarity{1.0}; };
 struct ControllerBankConfig {
  std::chrono::microseconds deadline{std::chrono::microseconds(2000)};
  std::size_t minimum_valid_controllers{1};
