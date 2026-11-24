@@ -9,7 +9,7 @@ OBLIVION is an embedded-first autonomous robotics intelligence platform. Its fir
 - **Sprint** — high-speed line tracking, predictive steering, trajectory and velocity optimization.
 - **Explore** — track discovery, graph mapping, route memory, dead-end handling and mission-aware navigation.
 
-The project is designed to grow into a reusable robotics platform. The initial 3D simulation workflow is documented in [simulator/README.md](simulator/README.md). The interactive viewer is published at [OBLIVION 3D Simulation Lab](https://jadhavdurvesh.github.io/OBLIVION/). It is not a dashboard and it is not a single PID sketch: the deliverable is the software that perceives sensor data, estimates robot state, plans actions and controls actuators on the robot.
+The project is designed to grow into a reusable robotics platform. The native 3D trace viewer and the independent virtual-robot endpoint are separate tools: see [simulator/README.md](simulator/README.md). The Control Center can connect to a physical robot over serial or to the standalone simulator over TCP using the same framed protocol and telemetry schema. The interactive viewer is published at [OBLIVION 3D Simulation Lab](https://jadhavdurvesh.github.io/OBLIVION/). It is not a dashboard and it is not a single PID sketch: the deliverable is the software that perceives sensor data, estimates robot state, plans actions and controls actuators on the robot.
 
 ## Engineering principles
 
@@ -81,7 +81,7 @@ On Windows, the demos may be located under `build/Release/`, depending on the ge
 
 ## Native desktop control center
 
-A native Qt 6 desktop control application is available in `desktop/`. It provides serial-port connection, Sprint/Explore selection, controller selection, Start/Pause/Stop/Emergency Stop, calibration and heartbeat actions, plus framed receive/error logging. Build it with `-DOBLIVION_BUILD_DESKTOP=ON` when Qt 6 Widgets and SerialPort are installed. See [desktop build and protocol notes](desktop/README.md). The desktop sends protocol requests; matching robot firmware and acknowledged telemetry are still required before these controls can operate a physical robot.
+A native Qt 6 desktop control application is available in `desktop/`. It provides physical serial or standalone simulator TCP connection, Sprint/Explore selection, controller selection, Start/Pause/Stop/Emergency Stop, calibration and heartbeat actions, plus framed receive/error logging and typed telemetry v1 decoding. The Control Center does not contain a simulator; start `simulator/oblivion_simulator.py` separately and connect to `127.0.0.1:8765` for a protocol-level virtual robot. This first endpoint is a synthetic integration stub, not yet the standalone full 3D simulator. Build it with `-DOBLIVION_BUILD_DESKTOP=ON` when Qt 6 Widgets and SerialPort are installed. See [desktop build and protocol notes](desktop/README.md). The desktop sends protocol requests; matching robot firmware and acknowledged telemetry are still required before these controls can operate a physical robot.
 
 The embedded-oriented core now also includes a fixed-memory sequential controller bank, differential-drive encoder/gyro odometry and motor slew-rate limiting. These are foundational modules, not a complete MCU port.
 
