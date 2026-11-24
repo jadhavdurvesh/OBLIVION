@@ -50,6 +50,7 @@ if(OBLIVION_BUILD_TESTS)
     add_executable(oblivion_tests
         tests/test_main.cpp
         tests/test_parallel_controller_bank.cpp
+        tests/test_protocol_frame_codec.cpp
         tests/test_kinematics.cpp
         tests/test_perception.cpp
         tests/test_pid.cpp
