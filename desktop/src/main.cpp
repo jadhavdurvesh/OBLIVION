@@ -15,6 +15,7 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QStatusBar>
+#include <QStyle>
 #include <QTextEdit>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -23,6 +24,7 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 class OblivionWindow final : public QMainWindow {
 public:
