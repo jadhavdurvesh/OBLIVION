@@ -27,7 +27,7 @@ jobs:
           - os: windows-2022
             artifact: OBLIVION-windows-x64
           - os: macos-14
-            artifact: OBLIVION-macos-x64
+            artifact: OBLIVION-macos-arm64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y qt6-base-dev qt6-serialport-dev
+          sudo apt-get install -y qt6-base-dev libqt6serialport6-dev
       - name: Install Qt on Windows
         if: runner.os == 'Windows'
         uses: jurplel/install-qt-action@v4
@@ -78,7 +78,9 @@ jobs:
           exec "$HERE/oblivion_desktop" "$@"
           EOF
           chmod +x package/OBLIVION/OBLIVION.sh
-          tar -C package -czf OBLIVION-linux-x64.tar.gz OBLIVION
+          chmod +x package/OBLIVION/oblivion_desktop
+          mv package/OBLIVION/oblivion_desktop OBLIVION-linux-x64
+          tar -C package -czf OBLIVION-linux-x64-runtime.tar.gz OBLIVION
       - name: Deploy Qt and package Windows
         if: runner.os == 'Windows'
         shell: pwsh
@@ -87,7 +89,26 @@ jobs:
           windeployqt --release --compiler-runtime --dir package $exe
           Copy-Item $exe package/
           Copy-Item desktop/README.md package/README-DESKTOP.txt
-          Compress-Archive -Path package/* -DestinationPath OBLIVION-windows-x64.zip
+          choco install innosetup --no-progress -y
+          Copy-Item desktop/README.md package/README-DESKTOP.txt
+          @'
+          [Setup]
+          AppName=OBLIVION
+          AppVersion=0.2.1
+          DefaultDirName={autopf}\OBLIVION
+          DefaultGroupName=OBLIVION
+          OutputBaseFilename=OBLIVION-Setup
+          Compression=lzma2
+          SolidCompression=yes
+          ArchitecturesInstallIn64BitMode=x64
+          [Files]
+          Source: "package\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+          [Icons]
+          Name: "{group}\OBLIVION"; Filename: "{app}\oblivion_desktop.exe"
+          Name: "{autodesktop}\OBLIVION"; Filename: "{app}\oblivion_desktop.exe"
+          '@ | Set-Content installer.iss
+          iscc installer.iss
+          Move-Item Output/OBLIVION-Setup.exe OBLIVION-windows-x64.exe
       - name: Deploy Qt and package macOS
         if: runner.os == 'macOS'
         run: |
@@ -96,7 +117,7 @@ jobs:
           test -d "$APP"
           macdeployqt "$APP" -always-overwrite
           cp desktop/README.md "$APP/Contents/Resources/README-DESKTOP.txt"
-          ditto -c -k --sequesterRsrc --keepParent "$APP" OBLIVION-macos-x64.zip
+          hdiutil create -volname OBLIVION -srcfolder "$APP" -ov -format UDZO OBLIVION-macos-arm64.dmg
       - name: Upload platform package
         uses: actions/upload-artifact@v4
         with:
@@ -111,6 +132,7 @@ jobs:
   publish-release:
     name: Publish GitHub Release
     needs: build-desktop
+    if: always() && needs.build-desktop.result != 'cancelled'
     runs-on: ubuntu-latest
     steps:
       - name: Download all platform packages
@@ -118,6 +140,7 @@ jobs:
         with:
           path: release-assets
           merge-multiple: true
+          pattern: OBLIVION-*
       - name: Create release and upload packages
         uses: softprops/action-gh-release@v2
         with:
