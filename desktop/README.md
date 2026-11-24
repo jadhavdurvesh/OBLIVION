@@ -12,7 +12,7 @@ If Qt 6 is not found, the portable core and tests still build; CMake reports tha
 CURRENT UI ACTIONS
 
 - Refresh available serial ports.
-- Connect/disconnect at 115200 baud.
+- Connect to a physical robot over serial at 115200 baud or to the standalone simulator over TCP (default 127.0.0.1:8765).
 - Select Sprint or Explore mission profile.
 - Select multiple controllers at once using the parallel controller ensemble checkboxes.
 - Send a 16-bit controller selection mask and Sprint/Explore mission profile with command frames.
@@ -20,6 +20,9 @@ CURRENT UI ACTIONS
 - Send Start, Pause, Stop, Emergency Stop, Heartbeat and Calibration command frames.
 - Display received framed packets, sequence numbers, protocol errors and serial errors.
 - Clear the event log.
+- Consume identical framed commands and typed telemetry from either transport.
+
+The Control Center no longer embeds or launches a local simulation. Run the independent simulator process from `simulator/README.md`, then connect using `Standalone simulator · TCP`. The simulator and physical robot share the same frame and telemetry v1 contracts.
 
 WIRE FORMAT
 
@@ -29,7 +32,7 @@ IMPORTANT FIRMWARE CONTRACT
 
 The matching robot firmware is not yet implemented. The UI can open a serial port and transmit framed commands, but a connection is not proof that the robot understands or safely executes them. Firmware must implement the exact protocol, reject unsupported profile/controller IDs, return telemetry frames, enforce command watchdog timeout, default motors off at boot, and implement emergency stop in an independent hardware-safe path. A lost USB/serial link must never leave motors running. Do not connect live motors until this firmware contract and physical E-stop are verified.
 
-The current receive path logs valid framed packet metadata; typed telemetry payload decoding and charts are future work. Desktop Start/Pause/Stop currently send requests; robot state is not assumed until an acknowledged status/telemetry protocol is added.
+The receive path validates framed packet metadata and decodes typed telemetry v1. Physical firmware must implement the matching telemetry publisher. Desktop Start/Pause/Stop currently send requests; robot state is not assumed until an acknowledged status/telemetry protocol is added.
 
 
 CONTROLLER ENSEMBLE NOTE
