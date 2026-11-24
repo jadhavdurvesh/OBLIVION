@@ -55,7 +55,7 @@ class Robot:
             enabled=(self.mask>>i)&1
             ctrl.append((int(max(-1000,min(1000,-position/4))),int(110+i*7) if enabled else 0,1 if enabled else 0))
         payload=bytearray()
-        payload+=struct.pack("<QI8H iH ii hhh hhh iii H",int(t*1e6),VALID,*sensors,position,conf,self.left_ticks,self.right_ticks,0,0,yaw,0,0,1000,self.speed*1000,yaw,int(curve*1000),self.mask)
+        payload+=struct.pack("<QI8H iH ii hhh hhh iii H",int(t*1e6),VALID,*sensors,position,conf,self.left_ticks,self.right_ticks,0,0,yaw,0,0,1000,int(self.speed*1000),yaw,int(curve*1000),self.mask)
         for o,us,status in ctrl: payload+=struct.pack("<hHB",o,us,status)
         payload+=struct.pack("<BIHI",18,65536,7400,0)
         return bytes(payload)
