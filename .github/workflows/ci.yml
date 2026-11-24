@@ -40,3 +40,17 @@ jobs:
         run: cmake --build build --config Release --parallel
       - name: Test
         run: ctest --test-dir build -C Release --output-on-failure
+
+  desktop-qt:
+    name: Ubuntu Qt 6 Desktop
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Qt 6 Widgets and SerialPort
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-base-dev qt6-serialport-dev
+      - name: Configure native desktop
+        run: cmake -S . -B build-desktop -DCMAKE_BUILD_TYPE=Release -DOBLIVION_BUILD_DESKTOP=ON -DOBLIVION_BUILD_TESTS=OFF -DOBLIVION_BUILD_EXAMPLES=OFF
+      - name: Build native desktop
+        run: cmake --build build-desktop --config Release --parallel
