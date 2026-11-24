@@ -151,6 +151,9 @@ documented plant model before supervisor selection.
 - [ ] Digital-twin versus physical-run model calibration.
 
 ## M9 — Embedded runtime and hardware abstraction
+- [x] Fixed-memory sequential controller bank with bounded candidate count, polarity normalization and measured execution-time gate (scheduler must supply trusted elapsed time).
+- [x] Differential-drive encoder odometry with optional gyro yaw fusion and uncertainty growth prototype.
+- [x] Motor command slew-rate limiter.
 - [ ] HAL interfaces for clock, GPIO, ADC, PWM, encoders, IMU and battery.
 - [ ] Safe motor-driver abstraction and hardware emergency-stop input.
 - [ ] Startup calibration and actuator-disabled boot state.
@@ -168,8 +171,7 @@ documented plant model before supervisor selection.
 - [ ] Configuration integrity, versioning and rollback.
 - [ ] Fault taxonomy, diagnostics and fault-injection tests.
 - [ ] Brownout, sensor disconnect, motor stall and over-temperature handling.
-- [ ] Communication protocol framing, authentication and replay protection if
-      remote telemetry/control is introduced.
+- [~] Versioned bounded-length CRC-16 framed protocol and desktop serial TX/RX framing; typed telemetry schema, acknowledgements, timeout policy, authentication and replay protection remain.
 - [ ] Signed firmware/update packages if update support is introduced.
 - [ ] Safety case and physical test checklist.
 - [ ] Competition preflight, calibration and post-run reports.
@@ -208,6 +210,22 @@ documented plant model before supervisor selection.
 - [ ] Uncertainty-aware trajectory optimization and robust braking margins.
 - [ ] Receding-horizon path tracking with obstacle and track-boundary constraints.
 - [ ] Independent derivation review and numerical validation against reference cases.
+
+## M13 — Native desktop control center
+- [x] Qt 6 Widgets desktop application target with optional CMake discovery.
+- [x] Serial-port discovery and connect/disconnect at an initial 115200 baud setting.
+- [x] Sprint/Explore selection and controller selection UI.
+- [x] Start, Pause, Stop, Emergency Stop, Heartbeat and Calibration command actions.
+- [x] Framed packet receive validation and event/error log.
+- [x] Local straight-track simulation action using the existing host simulation runner.
+- [ ] Acknowledged command state machine; UI must distinguish requested state from confirmed robot state.
+- [ ] Typed telemetry decoding, live plots, sensor health and controller-output visualization.
+- [ ] Configuration editor, import/export, validation and safe parameter profiles.
+- [ ] Experiment recorder, run comparison, CSV/JSON export and reproducibility metadata.
+- [ ] Track editor, Sprint/Explore mission planning and map visualization.
+- [ ] Firmware updater only after signed image and rollback design.
+- [ ] Windows/macOS/Linux packaging, installers, update channel and desktop integration tests.
+- [ ] Qt-enabled CI build and packaged-release smoke tests.
 
 ## Completion gates
 A feature is not complete because a file, class, interface, placeholder or
